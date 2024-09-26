@@ -17,15 +17,12 @@
 
 package org.openapitools.codegen.languages;
 
-import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
+import lombok.Setter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
-import org.openapitools.codegen.model.ModelMap;
-import org.openapitools.codegen.model.ModelsMap;
-import org.openapitools.codegen.model.OperationMap;
-import org.openapitools.codegen.model.OperationsMap;
+import org.openapitools.codegen.model.*;
 import org.openapitools.codegen.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import static org.openapitools.codegen.utils.CamelizeOption.LOWERCASE_FIRST_LETTER;
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 import static org.openapitools.codegen.utils.StringUtils.underscore;
 
@@ -42,17 +40,30 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
     private final Logger LOGGER = LoggerFactory.getLogger(AbstractGoCodegen.class);
     private static final String NUMERIC_ENUM_PREFIX = "_";
 
+    @Setter
     protected boolean withGoCodegenComment = false;
+    @Setter
     protected boolean withAWSV4Signature = false;
+    @Setter
     protected boolean withXml = false;
+    @Setter
     protected boolean enumClassPrefix = false;
+    @Setter
     protected boolean structPrefix = false;
+    @Setter
     protected boolean generateInterfaces = false;
+    @Setter
+    protected boolean withGoMod = false;
+    @Setter
+    protected boolean generateMarshalJSON = true;
+    @Setter
+    protected boolean generateUnmarshalJSON = true;
+    @Setter
+    protected boolean useDefaultValuesForRequiredVars = false;
 
+    @Setter
     protected String packageName = "openapi";
     protected Set<String> numberTypes;
-
-    protected boolean usesOptionals = true;
 
     public AbstractGoCodegen() {
         super();
@@ -144,7 +155,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
                         "float32", "float64")
         );
 
-        importMapping = new HashMap<>();
+        apiNameSuffix = "API";
 
         cliOptions.clear();
         cliOptions.add(new CliOption(CodegenConstants.PACKAGE_NAME, "Go package name (convention: lowercase).")
@@ -192,6 +203,10 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
 
     @Override
     public String toVarName(String name) {
+        // obtain the name from nameMapping directly if provided
+        if (nameMapping.containsKey(name)) {
+            return nameMapping.get(name);
+        }
 
         // replace - with _ e.g. created-at => created_at
         name = sanitizeName(name);
@@ -224,15 +239,20 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
 
     @Override
     protected boolean isReservedWord(String word) {
-        return word != null && reservedWords.contains(word);
+        return word != null && (reservedWords.contains(word) || reservedWordsMappings().containsKey(word));
     }
 
     @Override
     public String toParamName(String name) {
+        // obtain the name from parameterNameMapping directly if provided
+        if (parameterNameMapping.containsKey(name)) {
+            return parameterNameMapping.get(name);
+        }
+
         // params should be lowerCamelCase. E.g. "person Person", instead of
         // "Person Person".
         //
-        name = camelize(toVarName(name), true);
+        name = camelize(toVarName(name), LOWERCASE_FIRST_LETTER);
 
         // REVISIT: Actually, for idiomatic go, the param name should
         // really should just be a letter, e.g. "p Person"), but we'll get
@@ -270,6 +290,10 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
 
     @Override
     public String toModelFilename(String name) {
+        // Obtain the model name from modelNameMapping directly if provided
+        if (modelNameMapping.containsKey(name)) {
+            name = modelNameMapping.get(name);
+        }
         name = toModel("model_" + name);
 
         if (isReservedFilename(name)) {
@@ -285,6 +309,11 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
     }
 
     public String toModel(String name, boolean doUnderscore) {
+        // obtain the name from modelNameMapping directly if provided
+        if (modelNameMapping.containsKey(name)) {
+            return modelNameMapping.get(name);
+        }
+
         if (!StringUtils.isEmpty(modelNamePrefix)) {
             name = modelNamePrefix + "_" + name;
         }
@@ -344,8 +373,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
     @Override
     public String getTypeDeclaration(Schema p) {
         if (ModelUtils.isArraySchema(p)) {
-            ArraySchema ap = (ArraySchema) p;
-            Schema inner = ap.getItems();
+            Schema inner = ModelUtils.getSchemaItems(p);
             // In OAS 3.0.x, the array "items" attribute is required.
             // In OAS >= 3.1, the array "items" attribute is optional such that the OAS
             // specification is aligned with the JSON schema specification.
@@ -364,8 +392,8 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
             }
             return "[]" + typDecl;
         } else if (ModelUtils.isMapSchema(p)) {
-            Schema inner = getAdditionalProperties(p);
-            return getSchemaType(p) + "[string]" +  getTypeDeclaration(unaliasSchema(inner));
+            Schema inner = ModelUtils.getAdditionalProperties(p);
+            return getSchemaType(p) + "[string]" + getTypeDeclaration(unaliasSchema(inner));
         }
 
         //return super.getTypeDeclaration(p);
@@ -406,7 +434,14 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
     public String getSchemaType(Schema p) {
         String openAPIType = super.getSchemaType(p);
         String ref = p.get$ref();
-        String type = null;
+        String type;
+
+        // schema is a ref to property's schema e.g. #/components/schemas/Pet/properties/id
+        if (ModelUtils.isRefToSchemaWithProperties(ref)) {
+            Schema propertySchema = ModelUtils.getSchemaFromRefToSchemaWithProperties(openAPI, ref);
+            openAPIType = super.getSchemaType(propertySchema);
+            ref = propertySchema.get$ref();
+        }
 
         if (ref != null && !ref.isEmpty()) {
             type = toModelName(openAPIType);
@@ -415,10 +450,12 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
             type = "interface{}";
         } else if (typeMapping.containsKey(openAPIType)) {
             type = typeMapping.get(openAPIType);
-            if (languageSpecificPrimitives.contains(type))
+            if (languageSpecificPrimitives.contains(type)) {
                 return (type);
-        } else
+            }
+        } else {
             type = openAPIType;
+        }
         return type;
     }
 
@@ -498,7 +535,6 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
             }
         }
 
-        boolean addedOptionalImport = false;
         boolean addedTimeImport = false;
         boolean addedOSImport = false;
         boolean addedReflectImport = false;
@@ -515,12 +551,10 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
                     addedOSImport = true;
                 }
 
-                // import "time" if the operation has a required time parameter.
-                if (param.required || !usesOptionals) {
-                    if (!addedTimeImport && "time.Time".equals(param.dataType)) {
-                        imports.add(createMapping("import", "time"));
-                        addedTimeImport = true;
-                    }
+                // import "time" if the operation has a time parameter.
+                if (!addedTimeImport && "time.Time".equals(param.dataType)) {
+                    imports.add(createMapping("import", "time"));
+                    addedTimeImport = true;
                 }
 
                 // import "reflect" package if the parameter is collectionFormat=multi
@@ -529,21 +563,103 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
                     addedReflectImport = true;
                 }
 
-                // import "optionals" package if the parameter is optional
-                if (!param.required && usesOptionals) {
-                    if (!addedOptionalImport) {
-                        imports.add(createMapping("import", "github.com/antihax/optional"));
-                        addedOptionalImport = true;
-                    }
+                // set x-exportParamName
+                char nameFirstChar = param.paramName.charAt(0);
+                if (Character.isUpperCase(nameFirstChar)) {
+                    // First char is already uppercase, just use paramName.
+                    param.vendorExtensions.put("x-export-param-name", param.paramName);
+                } else {
+                    // It's a lowercase first char, let's convert it to uppercase
+                    StringBuilder sb = new StringBuilder(param.paramName);
+                    sb.setCharAt(0, Character.toUpperCase(nameFirstChar));
+                    param.vendorExtensions.put("x-export-param-name", sb.toString());
+                }
+            }
 
-                    // We need to specially map Time type to the optionals package
-                    if ("time.Time".equals(param.dataType)) {
-                        param.vendorExtensions.put("x-optional-data-type", "Time");
-                    } else {
-                        // Map optional type to dataType
-                        String optionalType = param.dataType.substring(0, 1).toUpperCase(Locale.ROOT) + param.dataType.substring(1);
-                        param.vendorExtensions.put("x-optional-data-type", optionalType);
-                    }
+            setExportParameterName(operation.queryParams);
+            setExportParameterName(operation.formParams);
+            setExportParameterName(operation.headerParams);
+            setExportParameterName(operation.bodyParams);
+            setExportParameterName(operation.cookieParams);
+            setExportParameterName(operation.optionalParams);
+            setExportParameterName(operation.requiredParams);
+
+        }
+
+        // recursively add import for mapping one type to multiple imports
+        List<Map<String, String>> recursiveImports = objs.getImports();
+        if (recursiveImports == null)
+            return objs;
+
+        ListIterator<Map<String, String>> listIterator = imports.listIterator();
+        while (listIterator.hasNext()) {
+            String _import = listIterator.next().get("import");
+            // if the import package happens to be found in the importMapping (key)
+            // add the corresponding import package to the list
+            if (importMapping.containsKey(_import)) {
+                listIterator.add(createMapping("import", importMapping.get(_import)));
+            }
+        }
+
+        return objs;
+    }
+
+    @Override
+    public WebhooksMap postProcessWebhooksWithModels(WebhooksMap objs, List<ModelMap> allModels) {
+        OperationMap objectMap = objs.getWebhooks();
+        List<CodegenOperation> operations = objectMap.getOperation();
+
+        for (CodegenOperation operation : operations) {
+            // http method verb conversion (e.g. PUT => Put)
+            operation.httpMethod = camelize(operation.httpMethod.toLowerCase(Locale.ROOT));
+        }
+
+        // remove model imports to avoid error
+        List<Map<String, String>> imports = objs.getImports();
+        if (imports == null)
+            return objs;
+
+        Iterator<Map<String, String>> iterator = imports.iterator();
+        while (iterator.hasNext()) {
+            String _import = iterator.next().get("import");
+            if (_import.startsWith(apiPackage()))
+                iterator.remove();
+        }
+
+        // this will only import "fmt" and "strings" if there are items in pathParams
+        for (CodegenOperation operation : operations) {
+            if (operation.pathParams != null && operation.pathParams.size() > 0) {
+                imports.add(createMapping("import", "strings"));
+                break; //just need to import once
+            }
+        }
+
+        boolean addedTimeImport = false;
+        boolean addedOSImport = false;
+        boolean addedReflectImport = false;
+        for (CodegenOperation operation : operations) {
+            // import "os" if the operation uses files
+            if (!addedOSImport && "*os.File".equals(operation.returnType)) {
+                imports.add(createMapping("import", "os"));
+                addedOSImport = true;
+            }
+            for (CodegenParameter param : operation.allParams) {
+                // import "os" if the operation uses files
+                if (!addedOSImport && "*os.File".equals(param.dataType)) {
+                    imports.add(createMapping("import", "os"));
+                    addedOSImport = true;
+                }
+
+                // import "time" if the operation has a time parameter.
+                if (!addedTimeImport && "time.Time".equals(param.dataType)) {
+                    imports.add(createMapping("import", "time"));
+                    addedTimeImport = true;
+                }
+
+                // import "reflect" package if the parameter is collectionFormat=multi
+                if (!addedReflectImport && param.isCollectionFormatMulti) {
+                    imports.add(createMapping("import", "reflect"));
+                    addedReflectImport = true;
                 }
 
                 // set x-exportParamName
@@ -626,25 +742,94 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
                 iterator.remove();
         }
 
-        boolean addedTimeImport = false;
-        boolean addedOSImport = false;
         for (ModelMap m : objs.getModels()) {
+            boolean addedTimeImport = false;
+            boolean addedOSImport = false;
+            boolean addedValidator = false;
             CodegenModel model = m.getModel();
-            for (CodegenProperty cp : model.vars) {
-                if (!addedTimeImport && ("time.Time".equals(cp.dataType) ||
-                        (cp.items != null && "time.Time".equals(cp.items.dataType)))) {
+
+            List<CodegenProperty> inheritedProperties = new ArrayList<>();
+            if (model.getComposedSchemas() != null) {
+                if (model.getComposedSchemas().getAnyOf() != null) {
+                    inheritedProperties.addAll(model.getComposedSchemas().getAnyOf());
+                }
+                if (model.getComposedSchemas().getOneOf() != null) {
+                    inheritedProperties.addAll(model.getComposedSchemas().getOneOf());
+                }
+            }
+
+            List<CodegenProperty> codegenProperties = new ArrayList<>();
+            if (model.getComposedSchemas() == null || (model.getComposedSchemas() != null && model.getComposedSchemas().getAllOf() != null)) {
+                // If the model is an allOf or does not have any composed schemas, then we can use the model's properties.
+                codegenProperties.addAll(model.vars);
+            } else {
+                // If the model is no model, but is a
+                // anyOf or oneOf, add all first level options
+                // from anyOf or oneOf.
+                codegenProperties.addAll(inheritedProperties);
+            }
+
+            for (CodegenProperty cp : codegenProperties) {
+                if (!addedTimeImport && ("time.Time".equals(cp.dataType) || (cp.items != null && "time.Time".equals(cp.items.complexType)))) {
                     imports.add(createMapping("import", "time"));
                     addedTimeImport = true;
                 }
+
                 if (!addedOSImport && ("*os.File".equals(cp.dataType) ||
                         (cp.items != null && "*os.File".equals(cp.items.dataType)))) {
                     imports.add(createMapping("import", "os"));
                     addedOSImport = true;
                 }
+
+                if (cp.pattern != null) {
+                    cp.vendorExtensions.put("x-go-custom-tag", "validate:\"regexp=" +
+                            cp.pattern.replace("\\", "\\\\").replaceAll("^/|/$", "") +
+                            "\"");
+                }
+
+                // construct data tag in the template: x-go-datatag
+                // originl template
+                // `json:"{{{baseName}}}{{^required}},omitempty{{/required}}"{{#withXml}} xml:"{{{baseName}}}{{#isXmlAttribute}},attr{{/isXmlAttribute}}"{{/withXml}}{{#withValidate}} validate:"{{validate}}"{{/withValidate}}{{#vendorExtensions.x-go-custom-tag}} {{{.}}}{{/vendorExtensions.x-go-custom-tag}}`
+                String goDataTag = "json:\"" + cp.baseName;
+                if (!cp.required) {
+                    goDataTag += ",omitempty";
+                }
+                goDataTag += "\"";
+
+                if (withXml) {
+                    goDataTag += " xml:" + "\"" + cp.baseName;
+                    if (cp.isXmlAttribute) {
+                        goDataTag += ",attr";
+                    }
+                    goDataTag += "\"";
+                }
+
+                // {{#withValidate}} validate:"{{validate}}"{{/withValidate}}
+                if (Boolean.parseBoolean(String.valueOf(additionalProperties.getOrDefault("withValidate", "false")))) {
+                    goDataTag += " validate:\"" + additionalProperties.getOrDefault("validate", "") + "\"";
+                }
+
+                // {{#vendorExtensions.x-go-custom-tag}} {{{.}}}{{/vendorExtensions.x-go-custom-tag}}
+                if (StringUtils.isNotEmpty(String.valueOf(cp.vendorExtensions.getOrDefault("x-go-custom-tag", "")))) {
+                    goDataTag += " " + cp.vendorExtensions.get("x-go-custom-tag");
+                }
+
+                // if it contains backtick, wrap with " instead
+                if (goDataTag.contains("`")) {
+                    goDataTag = " \"" + goDataTag.replace("\"", "\\\"") + "\"";
+                } else {
+                    goDataTag = " `" + goDataTag + "`";
+                }
+                cp.vendorExtensions.put("x-go-datatag", goDataTag);
             }
 
             if (this instanceof GoClientCodegen && model.isEnum) {
                 imports.add(createMapping("import", "fmt"));
+            }
+
+            if (model.oneOf != null && !model.oneOf.isEmpty() && !addedValidator && generateUnmarshalJSON) {
+                imports.add(createMapping("import", "gopkg.in/validator.v2"));
+                addedValidator = true;
             }
 
             // if oneOf contains "null" type
@@ -658,7 +843,16 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
                 model.isNullable = true;
                 model.anyOf.remove("nil");
             }
+
+            if (generateMarshalJSON) {
+                model.vendorExtensions.putIfAbsent("x-go-generate-marshal-json", true);
+            }
+
+            if (generateUnmarshalJSON) {
+                model.vendorExtensions.putIfAbsent("x-go-generate-unmarshal-json", true);
+            }
         }
+
         // recursively add import for mapping one type to multiple imports
         List<Map<String, String>> recursiveImports = objs.getImports();
         if (recursiveImports == null)
@@ -686,10 +880,6 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
     @Override
     protected boolean needToImport(String type) {
         return !defaultIncludes.contains(type) && !languageSpecificPrimitives.contains(type);
-    }
-
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
     }
 
     @Override
@@ -726,6 +916,10 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
 
     @Override
     public String toEnumVarName(String name, String datatype) {
+        if (enumNameMapping.containsKey(name)) {
+            return enumNameMapping.get(name);
+        }
+
         if (name.length() == 0) {
             return "EMPTY";
         }
@@ -760,6 +954,10 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
 
     @Override
     public String toEnumName(CodegenProperty property) {
+        if (enumNameMapping.containsKey(property.name)) {
+            return enumNameMapping.get(property.name);
+        }
+
         String enumName = underscore(toModelName(property.name)).toUpperCase(Locale.ROOT);
 
         // remove [] for array or map of enum
@@ -770,30 +968,6 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
         } else {
             return enumName;
         }
-    }
-
-    public void setWithGoCodegenComment(boolean withGoCodegenComment) {
-        this.withGoCodegenComment = withGoCodegenComment;
-    }
-
-    public void setWithAWSV4Signature(boolean withAWSV4Signature) {
-        this.withAWSV4Signature = withAWSV4Signature;
-    }
-
-    public void setWithXml(boolean withXml) {
-        this.withXml = withXml;
-    }
-
-    public void setEnumClassPrefix(boolean enumClassPrefix) {
-        this.enumClassPrefix = enumClassPrefix;
-    }
-
-    public void setStructPrefix(boolean structPrefix) {
-        this.structPrefix = structPrefix;
-    }
-
-    public void setGenerateInterfaces(boolean generateInterfaces) {
-        this.generateInterfaces = generateInterfaces;
     }
 
     @Override
@@ -820,7 +994,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
         // only process the following type (or we can simply rely on the file extension to check if it's a Go file)
         Set<String> supportedFileType = new HashSet<>(
                 Arrays.asList(
-                        "supporting-mustache",
+                        "supporting-file",
                         "model-test",
                         "model",
                         "api-test",

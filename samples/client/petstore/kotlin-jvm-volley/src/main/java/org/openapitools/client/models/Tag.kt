@@ -27,6 +27,7 @@ import org.openapitools.client.infrastructure.ITransformForStorage
  * @param name 
  */
 
+
 data class Tag (
 
     @SerializedName("id")
@@ -42,6 +43,7 @@ data class Tag (
         id = this.id,
 name = this.name,
         )
+
 
 }
 

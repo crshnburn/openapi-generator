@@ -30,6 +30,7 @@ import java.io.Serializable
  * @param complete 
  */
 
+
 data class Order (
 
     @SerializedName("id")
@@ -66,5 +67,6 @@ data class Order (
         @SerializedName(value = "approved") approved("approved"),
         @SerializedName(value = "delivered") delivered("delivered");
     }
+
 }
 

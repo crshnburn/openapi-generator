@@ -64,7 +64,7 @@ class {{classname}} {{#parent}}{{^parentModel}}{{#vendorExtensions.x-is-array}}e
         {{#-first}}
         // check to make sure all required properties are present in the JSON string
         for (const property of {{classname}}.RequiredProperties) {
-            if (!data[property]) {
+            if (!data.hasOwnProperty(property)) {
                 throw new Error("The required field `" + property + "` is not found in the JSON data: " + JSON.stringify(data));
             }
         }
@@ -80,7 +80,7 @@ class {{classname}} {{#parent}}{{^parentModel}}{{#vendorExtensions.x-is-array}}e
         }
         // validate the required field `{{{baseName}}}` (array)
         for (const item of data['{{{baseName}}}']) {
-            {{{items.dataType}}}.validateJsonObject(item);
+            {{{items.dataType}}}.validateJSON(item);
         };
         {{/isRequired}}
         {{^isRequired}}
@@ -91,7 +91,7 @@ class {{classname}} {{#parent}}{{^parentModel}}{{#vendorExtensions.x-is-array}}e
             }
             // validate the optional field `{{{baseName}}}` (array)
             for (const item of data['{{{baseName}}}']) {
-                {{{items.dataType}}}.validateJsonObject(item);
+                {{{items.dataType}}}.validateJSON(item);
             };
         }
         {{/isRequired}}

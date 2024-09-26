@@ -17,6 +17,7 @@ package org.openapitools.client.models
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import java.io.Serializable
 
 /**
@@ -31,6 +32,7 @@ import java.io.Serializable
  * @param phone 
  * @param userStatus User Status
  */
+
 
 data class User (
 
@@ -63,6 +65,7 @@ data class User (
     companion object {
         private const val serialVersionUID: Long = 123
     }
+
 
 }
 

@@ -18,10 +18,14 @@
 package org.openapitools.codegen.languages;
 
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
+import org.openapitools.codegen.meta.FeatureSet;
+import org.openapitools.codegen.meta.GeneratorMetadata;
+import org.openapitools.codegen.meta.Stability;
+import org.openapitools.codegen.meta.features.WireFormatFeature;
 import org.openapitools.codegen.model.ModelMap;
 import org.openapitools.codegen.model.ModelsMap;
 import org.openapitools.codegen.model.OperationsMap;
@@ -32,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.*;
 
+import static org.openapitools.codegen.utils.CamelizeOption.LOWERCASE_FIRST_LETTER;
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 
 public class JavascriptClosureAngularClientCodegen extends DefaultCodegen implements CodegenConfig {
@@ -39,10 +44,19 @@ public class JavascriptClosureAngularClientCodegen extends DefaultCodegen implem
 
     public static final String USE_ES6 = "useEs6";
 
-    protected boolean useEs6;
+    @Setter protected boolean useEs6;
 
     public JavascriptClosureAngularClientCodegen() {
         super();
+        
+        generatorMetadata = GeneratorMetadata.newBuilder(generatorMetadata)
+            .stability(Stability.BETA)
+            .featureSet(
+                FeatureSet.newBuilder(generatorMetadata.getFeatureSet())
+                    .excludeWireFormatFeatures(WireFormatFeature.XML).build()
+            )
+            .build();
+        
         outputFolder = "generated-code/javascript-closure-angular";
 
         // default HIDE_GENERATION_TIMESTAMP to true
@@ -139,7 +153,7 @@ public class JavascriptClosureAngularClientCodegen extends DefaultCodegen implem
 
     @Override
     public String getHelp() {
-        return "Generates a Javascript AngularJS client library (beta) annotated with Google Closure Compiler annotations" +
+        return "Generates a Javascript AngularJS client library annotated with Google Closure Compiler annotations" +
             "(https://developers.google.com/closure/compiler/docs/js-for-compiler?hl=en)";
     }
 
@@ -161,6 +175,7 @@ public class JavascriptClosureAngularClientCodegen extends DefaultCodegen implem
         return outputFolder + File.separator + apiPackage().replace('.', File.separatorChar);
     }
 
+    @Override
     public String modelFileFolder() {
         return outputFolder + File.separator + modelPackage().replace('.', File.separatorChar);
     }
@@ -179,7 +194,7 @@ public class JavascriptClosureAngularClientCodegen extends DefaultCodegen implem
 
         // camelize the variable name
         // pet_id => PetId
-        name = camelize(name, true);
+        name = camelize(name, LOWERCASE_FIRST_LETTER);
 
         // for reserved word or word starting with number, append _
         if (isReservedWord(name) || name.matches("^\\d.*"))
@@ -224,11 +239,10 @@ public class JavascriptClosureAngularClientCodegen extends DefaultCodegen implem
     @Override
     public String getTypeDeclaration(Schema p) {
         if (ModelUtils.isArraySchema(p)) {
-            ArraySchema ap = (ArraySchema) p;
-            Schema inner = ap.getItems();
+            Schema inner = ModelUtils.getSchemaItems(p);
             return getSchemaType(p) + "<!" + getTypeDeclaration(inner) + ">";
         } else if (ModelUtils.isMapSchema(p)) {
-            Schema inner = getAdditionalProperties(p);
+            Schema inner = ModelUtils.getAdditionalProperties(p);
             return "Object<!string, "+ getTypeDeclaration(inner) + ">";
         } else if (ModelUtils.isFileSchema(p)) {
             return "Object";
@@ -287,11 +301,11 @@ public class JavascriptClosureAngularClientCodegen extends DefaultCodegen implem
             throw new RuntimeException("Empty method/operation name (operationId) not allowed");
         }
 
-        operationId = camelize(sanitizeName(operationId), true);
+        operationId = camelize(sanitizeName(operationId), LOWERCASE_FIRST_LETTER);
 
         // method name cannot use reserved keyword, e.g. return
         if (isReservedWord(operationId)) {
-            String newOperationId = camelize("call_" + operationId, true);
+            String newOperationId = camelize("call_" + operationId, LOWERCASE_FIRST_LETTER);
             LOGGER.warn("{} (reserved word) cannot be used as method name. Renamed to {}", operationId, newOperationId);
             return newOperationId;
         }
@@ -308,10 +322,6 @@ public class JavascriptClosureAngularClientCodegen extends DefaultCodegen implem
     @Override
     public String escapeUnsafeCharacters(String input) {
         return input.replace("*/", "*_/").replace("/*", "/_*");
-    }
-
-    public void setUseEs6(boolean useEs6) {
-        this.useEs6 = useEs6;
     }
 
     @Override

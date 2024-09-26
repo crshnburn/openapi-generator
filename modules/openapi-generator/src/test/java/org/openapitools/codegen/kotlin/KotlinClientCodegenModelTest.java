@@ -34,6 +34,7 @@ import org.openapitools.codegen.DefaultGenerator;
 import org.openapitools.codegen.TestUtils;
 import org.openapitools.codegen.config.CodegenConfigurator;
 import org.openapitools.codegen.languages.KotlinClientCodegen;
+import org.openapitools.codegen.testutils.ConfigAssert;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -51,33 +52,33 @@ public class KotlinClientCodegenModelTest {
 
     private Schema getArrayTestSchema() {
         return new ObjectSchema()
-            .description("a sample model")
-            .addProperties("id", new IntegerSchema().format("int64"))
-            .addProperties("examples", new ArraySchema().items(new StringSchema()))
-            .addRequiredItem("id");
+                .description("a sample model")
+                .addProperties("id", new IntegerSchema().format("int64"))
+                .addProperties("examples", new ArraySchema().items(new StringSchema()))
+                .addRequiredItem("id");
     }
 
     private Schema getSimpleSchema() {
         return new ObjectSchema()
-            .description("a sample model")
-            .addProperties("id", new IntegerSchema().format("int64"))
-            .addProperties("name", new StringSchema())
-            .addProperties("createdAt", new DateTimeSchema())
-            .addRequiredItem("id")
-            .addRequiredItem("name");
+                .description("a sample model")
+                .addProperties("id", new IntegerSchema().format("int64"))
+                .addProperties("name", new StringSchema())
+                .addProperties("createdAt", new DateTimeSchema())
+                .addRequiredItem("id")
+                .addRequiredItem("name");
     }
 
     private Schema getMapSchema() {
         return new ObjectSchema()
-            .description("a sample model")
-            .addProperties("mapping", new MapSchema()
-                .additionalProperties(new StringSchema()));
+                .description("a sample model")
+                .addProperties("mapping", new MapSchema()
+                        .additionalProperties(new StringSchema()));
     }
 
     private Schema getComplexSchema() {
         return new ObjectSchema()
-            .description("a sample model")
-            .addProperties("child", new ObjectSchema().$ref("#/components/schemas/Child"));
+                .description("a sample model")
+                .addProperties("child", new ObjectSchema().$ref("#/components/schemas/Child"));
     }
 
     @Test(description = "convert a simple model")
@@ -339,11 +340,12 @@ public class KotlinClientCodegenModelTest {
     @DataProvider(name = "modelNames")
     public static Object[][] modelNames() {
         return new Object[][]{
-            {"TestNs.TestClass", new ModelNameTest("TestNs.TestClass", "TestNsTestClass")},
-            {"$", new ModelNameTest("$", "Dollar")},
-            {"for", new ModelNameTest("`for`", "For")},
-            {"One<Two", new ModelNameTest("One<Two", "OneLessThanTwo")},
-            {"this is a test", new ModelNameTest("this is a test", "ThisIsATest")}
+                {"TestNs.TestClass", new ModelNameTest("TestNs.TestClass", "TestNsTestClass")},
+                {"$", new ModelNameTest("$", "Dollar")},
+                {"for", new ModelNameTest("`for`", "For")},
+                {"One<Two", new ModelNameTest("One<Two", "OneLessThanTwo")},
+                {"One-Two", new ModelNameTest("One-Two", "OneTwo")},
+                {"this is a test", new ModelNameTest("this is a test", "ThisIsATest")}
         };
     }
 
@@ -368,20 +370,67 @@ public class KotlinClientCodegenModelTest {
         output.deleteOnExit();
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
-            .setGeneratorName("kotlin")
-            .setLibrary("jvm-retrofit2")
-            .setAdditionalProperties(properties)
-            .setInputSpec("src/test/resources/3_0/issue4808.yaml")
-            .setOutputDir(output.getAbsolutePath().replace("\\", "/"));
+                .setGeneratorName("kotlin")
+                .setLibrary("jvm-retrofit2")
+                .setAdditionalProperties(properties)
+                .setInputSpec("src/test/resources/3_0/issue4808.yaml")
+                .setOutputDir(output.getAbsolutePath().replace("\\", "/"));
 
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
         DefaultGenerator generator = new DefaultGenerator();
         List<File> files = generator.opts(clientOptInput).generate();
 
-        Assert.assertEquals(files.size(), 28);
+        Assert.assertEquals(files.size(), 31);
         TestUtils.assertFileContains(Paths.get(output + "/src/main/kotlin/xyz/abcdef/api/DefaultApi.kt"),
-            "fun getSomeValue(@Query(\"since\") since: kotlin.String? = null, @Query(\"sinceBuild\") sinceBuild: kotlin.String? = null, @Query(\"maxBuilds\") maxBuilds: kotlin.Int? = null, @Query(\"maxWaitSecs\") maxWaitSecs: kotlin.Int? = null)"
+                "fun getSomeValue(@Query(\"since\") since: kotlin.String? = null, @Query(\"sinceBuild\") sinceBuild: kotlin.String? = null, @Query(\"maxBuilds\") maxBuilds: kotlin.Int? = null, @Query(\"maxWaitSecs\") maxWaitSecs: kotlin.Int? = null)"
         );
+    }
+
+    @Test
+    public void testOmitGradleWrapperDoesNotGenerateWrapper() throws IOException {
+        File output = Files.createTempDirectory("test").toFile();
+        String path = output.getAbsolutePath();
+        output.deleteOnExit();
+
+        final CodegenConfigurator configurator = new CodegenConfigurator()
+                .setGeneratorName("kotlin")
+                .setInputSpec("src/test/resources/3_0/ping.yaml")
+                .addAdditionalProperty("omitGradleWrapper", true)
+                .setOutputDir(output.getAbsolutePath().replace("\\", "/"));
+        DefaultGenerator generator = new DefaultGenerator();
+
+        generator.opts(configurator.toClientOptInput()).generate();
+
+        TestUtils.assertFileNotExists(Paths.get(path, "gradlew"));
+        TestUtils.assertFileNotExists(Paths.get(path, "gradlew.bat"));
+        TestUtils.assertFileNotExists(Paths.get(path, "gradle", "wrapper", "gradle-wrapper.properties"));
+        TestUtils.assertFileNotExists(Paths.get(path, "gradle", "wrapper", "gradle-wrapper.jar"));
+    }
+
+    @Test
+    public void testFailOnUnknownPropertiesAdditionalProperty() {
+        final KotlinClientCodegen codegen = new KotlinClientCodegen();
+
+        // Default case, nothing provided
+        codegen.processOpts();
+
+        ConfigAssert configAssert = new ConfigAssert(codegen.additionalProperties());
+        // Default to false
+        configAssert.assertValue(KotlinClientCodegen.FAIL_ON_UNKNOWN_PROPERTIES, codegen::isFailOnUnknownProperties, Boolean.FALSE);
+
+        // Provide true
+        codegen.additionalProperties().put(KotlinClientCodegen.FAIL_ON_UNKNOWN_PROPERTIES, true);
+        codegen.processOpts();
+
+        // Should be true
+        configAssert.assertValue(KotlinClientCodegen.FAIL_ON_UNKNOWN_PROPERTIES, codegen::isFailOnUnknownProperties, Boolean.TRUE);
+
+        // Provide false
+        codegen.additionalProperties().put(KotlinClientCodegen.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        codegen.processOpts();
+
+        // Should be false
+        configAssert.assertValue(KotlinClientCodegen.FAIL_ON_UNKNOWN_PROPERTIES, codegen::isFailOnUnknownProperties, Boolean.FALSE);
     }
 
     private static class ModelNameTest {

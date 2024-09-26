@@ -5,6 +5,8 @@ import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.languages.features.BeanValidationFeatures;
@@ -24,8 +26,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.openapitools.codegen.CodegenConstants.INVOKER_PACKAGE;
-import static org.openapitools.codegen.utils.StringUtils.camelize;
-import static org.openapitools.codegen.utils.StringUtils.underscore;
 
 public abstract class JavaMicronautAbstractCodegen extends AbstractJavaCodegen implements BeanValidationFeatures, OptionalFeatures {
     public static final String OPT_TITLE = "title";
@@ -53,12 +53,13 @@ public abstract class JavaMicronautAbstractCodegen extends AbstractJavaCodegen i
     public static final String OPT_GENERATE_SWAGGER_ANNOTATIONS_TRUE = "true";
     public static final String OPT_GENERATE_SWAGGER_ANNOTATIONS_FALSE = "false";
     public static final String OPT_GENERATE_OPERATION_ONLY_FOR_FIRST_TAG = "generateOperationOnlyForFirstTag";
+    public enum SERIALIZATION_LIBRARY_TYPE {jackson, micronaut_serde_jackson}
 
     protected final Logger LOGGER = LoggerFactory.getLogger(JavaMicronautAbstractCodegen.class);
 
     protected String title;
-    protected boolean useBeanValidation;
-    protected boolean useOptional;
+    @Getter protected boolean useOptional;
+    @Getter @Setter
     protected boolean visitable;
     protected String buildTool;
     protected String testTool;
@@ -69,6 +70,7 @@ public abstract class JavaMicronautAbstractCodegen extends AbstractJavaCodegen i
     protected String appName;
     protected String generateSwaggerAnnotations;
     protected boolean generateOperationOnlyForFirstTag;
+    protected String serializationLibrary = SERIALIZATION_LIBRARY_TYPE.jackson.name();
 
     public static final String CONTENT_TYPE_APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
     public static final String CONTENT_TYPE_APPLICATION_JSON = "application/json";
@@ -123,7 +125,6 @@ public abstract class JavaMicronautAbstractCodegen extends AbstractJavaCodegen i
         );
 
         // Set additional properties
-        additionalProperties.put("jackson", "true");
         additionalProperties.put("openbrace", "{");
         additionalProperties.put("closebrace", "}");
 
@@ -180,6 +181,14 @@ public abstract class JavaMicronautAbstractCodegen extends AbstractJavaCodegen i
             opt.setEnum(valuesEnum);
         });
 
+        final CliOption serializationLibraryOpt = CliOption.newString(CodegenConstants.SERIALIZATION_LIBRARY, "Serialization library for model");
+        serializationLibraryOpt.defaultValue(SERIALIZATION_LIBRARY_TYPE.jackson.name());
+        Map<String, String> serializationLibraryOptions = new HashMap<>();
+        serializationLibraryOptions.put(SERIALIZATION_LIBRARY_TYPE.jackson.name(), "Jackson as serialization library");
+        serializationLibraryOptions.put(SERIALIZATION_LIBRARY_TYPE.micronaut_serde_jackson.name(), "Use micronaut-serialization with Jackson annotations");
+        serializationLibraryOpt.setEnum(serializationLibraryOptions);
+        cliOptions.add(serializationLibraryOpt);
+
         // Add reserved words
         String[] reservedWordsArray = {
                 "client", "format", "queryvalue", "queryparam", "pathvariable", "header", "cookie",
@@ -216,10 +225,6 @@ public abstract class JavaMicronautAbstractCodegen extends AbstractJavaCodegen i
         }
 
         // Get boolean properties
-        if (additionalProperties.containsKey(USE_BEANVALIDATION)) {
-            this.setUseBeanValidation(convertPropertyToBoolean(USE_BEANVALIDATION));
-        }
-        writePropertyBack(USE_BEANVALIDATION, useBeanValidation);
 
         if (additionalProperties.containsKey(USE_OPTIONAL)) {
             this.setUseOptional(convertPropertyToBoolean(USE_OPTIONAL));
@@ -304,6 +309,12 @@ public abstract class JavaMicronautAbstractCodegen extends AbstractJavaCodegen i
         } else if (OPT_GENERATE_SWAGGER_ANNOTATIONS_SWAGGER_2.equals(this.generateSwaggerAnnotations)) {
             additionalProperties.put("generateSwagger2Annotations", true);
         }
+
+        if (additionalProperties.containsKey(CodegenConstants.SERIALIZATION_LIBRARY)) {
+            setSerializationLibrary((String) additionalProperties.get(CodegenConstants.SERIALIZATION_LIBRARY));
+        }
+        additionalProperties.put(this.serializationLibrary, true);
+        this.jackson = JACKSON.equals(this.serializationLibrary);
 
         // Add all the supporting files
         String resourceFolder = projectFolder + "/resources";
@@ -413,17 +424,8 @@ public abstract class JavaMicronautAbstractCodegen extends AbstractJavaCodegen i
     }
 
     @Override
-    public void setUseBeanValidation(boolean useBeanValidation) {
-        this.useBeanValidation = useBeanValidation;
-    }
-
-    @Override
     public void setUseOptional(boolean useOptional) {
         this.useOptional = useOptional;
-    }
-
-    public void setVisitable(boolean visitable) {
-        this.visitable = visitable;
     }
 
     @Override
@@ -433,18 +435,6 @@ public abstract class JavaMicronautAbstractCodegen extends AbstractJavaCodegen i
             apiVarName = escapeReservedWord(apiVarName);
         }
         return apiVarName;
-    }
-
-    public boolean isUseBeanValidation() {
-        return useBeanValidation;
-    }
-
-    public boolean isUseOptional() {
-        return useOptional;
-    }
-
-    public boolean isVisitable() {
-        return visitable;
     }
 
     @Override
@@ -708,6 +698,18 @@ public abstract class JavaMicronautAbstractCodegen extends AbstractJavaCodegen i
         @Override
         public void execute(final Template.Fragment fragment, final Writer writer) throws IOException {
             writer.write(fragment.execute().replace('.', '_'));
+        }
+    }
+
+    public void setSerializationLibrary(final String serializationLibrary) {
+        try {
+            this.serializationLibrary = JavaMicronautAbstractCodegen.SERIALIZATION_LIBRARY_TYPE.valueOf(serializationLibrary).name();
+        } catch (IllegalArgumentException ex) {
+            StringBuilder sb = new StringBuilder(serializationLibrary + " is an invalid enum property naming option. Please choose from:");
+            for (JavaMicronautAbstractCodegen.SERIALIZATION_LIBRARY_TYPE availableSerializationLibrary : JavaMicronautAbstractCodegen.SERIALIZATION_LIBRARY_TYPE.values()) {
+                sb.append("\n  ").append(availableSerializationLibrary.name());
+            }
+            throw new RuntimeException(sb.toString());
         }
     }
 }

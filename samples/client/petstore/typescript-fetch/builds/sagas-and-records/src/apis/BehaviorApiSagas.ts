@@ -13,7 +13,7 @@
  */
 
 
-import {Api} from './';
+import {Api} from './index';
 import {List} from 'immutable';
 import {all, fork, put, takeLatest} from "redux-saga/effects";
 import {apiCall, createSagaAction as originalCreateSagaAction, BaseEntitySupportPayloadApiAction, BasePayloadApiAction, NormalizedRecordEntities, normalizedEntities} from "../runtimeSagasAndRecords";
@@ -27,7 +27,7 @@ import {
     GetBehaviorTypeResponseRecord,
     getBehaviorTypeResponseRecordUtils,
     BehaviorType,
-} from '../models';
+} from '../models/index';
 
 const createSagaAction = <T>(type: string) => originalCreateSagaAction<T>(type, {namespace: "api_behaviorApi"});
 
@@ -69,7 +69,7 @@ export function *getBehaviorPermissionsSagaImp(_action_: Action<PayloadGetBehavi
 
         yield put(getBehaviorPermissionsRequest(_action_.payload));
 
-        const response: Required<GetBehaviorPermissionsResponse> = yield apiCall(Api.behaviorApi, Api.behaviorApi.getBehaviorPermissions,
+        const response: Required<GetBehaviorPermissionsResponse> = yield apiCall(Api.behaviorApi, Api.behaviorApi['getBehaviorPermissions'],
             parseFloat(behaviorId),
         );
 
@@ -113,7 +113,7 @@ export function *getBehaviorTypeSagaImp(_action_: Action<PayloadGetBehaviorType>
 
         yield put(getBehaviorTypeRequest(_action_.payload));
 
-        const response: Required<GetBehaviorTypeResponse> = yield apiCall(Api.behaviorApi, Api.behaviorApi.getBehaviorType,
+        const response: Required<GetBehaviorTypeResponse> = yield apiCall(Api.behaviorApi, Api.behaviorApi['getBehaviorType'],
             parseFloat(behaviorId),
         );
 

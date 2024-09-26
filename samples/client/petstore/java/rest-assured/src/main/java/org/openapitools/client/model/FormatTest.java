@@ -20,8 +20,6 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -35,7 +33,7 @@ import org.hibernate.validator.constraints.*;
 /**
  * FormatTest
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.9.0-SNAPSHOT")
 public class FormatTest {
   public static final String SERIALIZED_NAME_INTEGER = "integer";
   @SerializedName(SERIALIZED_NAME_INTEGER)
@@ -102,14 +100,14 @@ public class FormatTest {
     return this;
   }
 
-   /**
+  /**
    * Get integer
    * minimum: 10
    * maximum: 100
    * @return integer
-  **/
+   */
   @javax.annotation.Nullable
- @Min(10) @Max(100)  @ApiModelProperty(value = "")
+ @Min(10) @Max(100)
 
   public Integer getInteger() {
     return integer;
@@ -120,21 +118,20 @@ public class FormatTest {
     this.integer = integer;
   }
 
-
   public FormatTest int32(Integer int32) {
     
     this.int32 = int32;
     return this;
   }
 
-   /**
+  /**
    * Get int32
    * minimum: 20
    * maximum: 200
    * @return int32
-  **/
+   */
   @javax.annotation.Nullable
- @Min(20) @Max(200)  @ApiModelProperty(value = "")
+ @Min(20) @Max(200)
 
   public Integer getInt32() {
     return int32;
@@ -145,19 +142,18 @@ public class FormatTest {
     this.int32 = int32;
   }
 
-
   public FormatTest int64(Long int64) {
     
     this.int64 = int64;
     return this;
   }
 
-   /**
+  /**
    * Get int64
    * @return int64
-  **/
+   */
   @javax.annotation.Nullable
-  @ApiModelProperty(value = "")
+
 
   public Long getInt64() {
     return int64;
@@ -168,23 +164,22 @@ public class FormatTest {
     this.int64 = int64;
   }
 
-
   public FormatTest number(BigDecimal number) {
     
     this.number = number;
     return this;
   }
 
-   /**
+  /**
    * Get number
    * minimum: 32.1
    * maximum: 543.2
    * @return number
-  **/
+   */
   @javax.annotation.Nonnull
   @NotNull
   @Valid
- @DecimalMin("32.1") @DecimalMax("543.2")  @ApiModelProperty(required = true, value = "")
+ @DecimalMin("32.1") @DecimalMax("543.2")
 
   public BigDecimal getNumber() {
     return number;
@@ -195,21 +190,20 @@ public class FormatTest {
     this.number = number;
   }
 
-
   public FormatTest _float(Float _float) {
     
     this._float = _float;
     return this;
   }
 
-   /**
+  /**
    * Get _float
    * minimum: 54.3
    * maximum: 987.6
    * @return _float
-  **/
+   */
   @javax.annotation.Nullable
- @DecimalMin("54.3") @DecimalMax("987.6")  @ApiModelProperty(value = "")
+ @DecimalMin("54.3") @DecimalMax("987.6")
 
   public Float getFloat() {
     return _float;
@@ -220,21 +214,20 @@ public class FormatTest {
     this._float = _float;
   }
 
-
   public FormatTest _double(Double _double) {
     
     this._double = _double;
     return this;
   }
 
-   /**
+  /**
    * Get _double
    * minimum: 67.8
    * maximum: 123.4
    * @return _double
-  **/
+   */
   @javax.annotation.Nullable
- @DecimalMin("67.8") @DecimalMax("123.4")  @ApiModelProperty(value = "")
+ @DecimalMin("67.8") @DecimalMax("123.4")
 
   public Double getDouble() {
     return _double;
@@ -245,19 +238,18 @@ public class FormatTest {
     this._double = _double;
   }
 
-
   public FormatTest string(String string) {
     
     this.string = string;
     return this;
   }
 
-   /**
+  /**
    * Get string
    * @return string
-  **/
+   */
   @javax.annotation.Nullable
- @Pattern(regexp="/[a-z]/i")  @ApiModelProperty(value = "")
+ @Pattern(regexp="/[a-z]/i")
 
   public String getString() {
     return string;
@@ -268,20 +260,19 @@ public class FormatTest {
     this.string = string;
   }
 
-
   public FormatTest _byte(byte[] _byte) {
     
     this._byte = _byte;
     return this;
   }
 
-   /**
+  /**
    * Get _byte
    * @return _byte
-  **/
+   */
   @javax.annotation.Nonnull
   @NotNull
-  @ApiModelProperty(required = true, value = "")
+
 
   public byte[] getByte() {
     return _byte;
@@ -292,20 +283,19 @@ public class FormatTest {
     this._byte = _byte;
   }
 
-
   public FormatTest binary(File binary) {
     
     this.binary = binary;
     return this;
   }
 
-   /**
+  /**
    * Get binary
    * @return binary
-  **/
+   */
   @javax.annotation.Nullable
   @Valid
-  @ApiModelProperty(value = "")
+
 
   public File getBinary() {
     return binary;
@@ -316,21 +306,20 @@ public class FormatTest {
     this.binary = binary;
   }
 
-
   public FormatTest date(LocalDate date) {
     
     this.date = date;
     return this;
   }
 
-   /**
+  /**
    * Get date
    * @return date
-  **/
+   */
   @javax.annotation.Nonnull
   @NotNull
   @Valid
-  @ApiModelProperty(required = true, value = "")
+
 
   public LocalDate getDate() {
     return date;
@@ -341,20 +330,19 @@ public class FormatTest {
     this.date = date;
   }
 
-
   public FormatTest dateTime(OffsetDateTime dateTime) {
     
     this.dateTime = dateTime;
     return this;
   }
 
-   /**
+  /**
    * Get dateTime
    * @return dateTime
-  **/
+   */
   @javax.annotation.Nullable
   @Valid
-  @ApiModelProperty(value = "")
+
 
   public OffsetDateTime getDateTime() {
     return dateTime;
@@ -365,20 +353,19 @@ public class FormatTest {
     this.dateTime = dateTime;
   }
 
-
   public FormatTest uuid(UUID uuid) {
     
     this.uuid = uuid;
     return this;
   }
 
-   /**
+  /**
    * Get uuid
    * @return uuid
-  **/
+   */
   @javax.annotation.Nullable
   @Valid
-  @ApiModelProperty(example = "72f98069-206d-4f12-9f12-3d1e525a8e84", value = "")
+
 
   public UUID getUuid() {
     return uuid;
@@ -389,20 +376,19 @@ public class FormatTest {
     this.uuid = uuid;
   }
 
-
   public FormatTest password(String password) {
     
     this.password = password;
     return this;
   }
 
-   /**
+  /**
    * Get password
    * @return password
-  **/
+   */
   @javax.annotation.Nonnull
   @NotNull
- @Size(min=10,max=64)  @ApiModelProperty(required = true, value = "")
+ @Size(min=10,max=64)
 
   public String getPassword() {
     return password;
@@ -413,20 +399,19 @@ public class FormatTest {
     this.password = password;
   }
 
-
   public FormatTest bigDecimal(BigDecimal bigDecimal) {
     
     this.bigDecimal = bigDecimal;
     return this;
   }
 
-   /**
+  /**
    * Get bigDecimal
    * @return bigDecimal
-  **/
+   */
   @javax.annotation.Nullable
   @Valid
-  @ApiModelProperty(value = "")
+
 
   public BigDecimal getBigDecimal() {
     return bigDecimal;
@@ -436,7 +421,6 @@ public class FormatTest {
   public void setBigDecimal(BigDecimal bigDecimal) {
     this.bigDecimal = bigDecimal;
   }
-
 
   @Override
   public boolean equals(Object o) {
@@ -484,7 +468,7 @@ public class FormatTest {
     sb.append("    date: ").append(toIndentedString(date)).append("\n");
     sb.append("    dateTime: ").append(toIndentedString(dateTime)).append("\n");
     sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
-    sb.append("    password: ").append(toIndentedString(password)).append("\n");
+    sb.append("    password: ").append("*").append("\n");
     sb.append("    bigDecimal: ").append(toIndentedString(bigDecimal)).append("\n");
     sb.append("}");
     return sb.toString();

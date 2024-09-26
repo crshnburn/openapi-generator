@@ -12,6 +12,7 @@ package petstore
 
 import (
 	"encoding/json"
+	"gopkg.in/validator.v2"
 	"fmt"
 )
 
@@ -47,7 +48,11 @@ func (dst *FruitReq) UnmarshalJSON(data []byte) error {
 		if string(jsonAppleReq) == "{}" { // empty struct
 			dst.AppleReq = nil
 		} else {
-			match++
+			if err = validator.Validate(dst.AppleReq); err != nil {
+				dst.AppleReq = nil
+			} else {
+				match++
+			}
 		}
 	} else {
 		dst.AppleReq = nil
@@ -60,7 +65,11 @@ func (dst *FruitReq) UnmarshalJSON(data []byte) error {
 		if string(jsonBananaReq) == "{}" { // empty struct
 			dst.BananaReq = nil
 		} else {
-			match++
+			if err = validator.Validate(dst.BananaReq); err != nil {
+				dst.BananaReq = nil
+			} else {
+				match++
+			}
 		}
 	} else {
 		dst.BananaReq = nil
@@ -71,11 +80,11 @@ func (dst *FruitReq) UnmarshalJSON(data []byte) error {
 		dst.AppleReq = nil
 		dst.BananaReq = nil
 
-		return fmt.Errorf("Data matches more than one schema in oneOf(FruitReq)")
+		return fmt.Errorf("data matches more than one schema in oneOf(FruitReq)")
 	} else if match == 1 {
 		return nil // exactly one match
 	} else { // no match
-		return fmt.Errorf("Data failed to match schemas in oneOf(FruitReq)")
+		return fmt.Errorf("data failed to match schemas in oneOf(FruitReq)")
 	}
 }
 

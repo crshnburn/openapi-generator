@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.9.0-SNAPSHOT")
 public class OAuth implements Authentication {
     private static final Logger log = Logger.getLogger(OAuth.class.getName());
 
@@ -164,6 +164,19 @@ public class OAuth implements Authentication {
         } else {
             service = new ServiceBuilder(clientId)
                 .apiSecret(clientSecret)
+                .build(authApi);
+        }
+        return this;
+    }
+
+    public OAuth setCredentialsForPublicClient(String clientId, Boolean debug) {
+        if (Boolean.TRUE.equals(debug)) {
+            service = new ServiceBuilder(clientId)
+                .apiSecretIsEmptyStringUnsafe().debug()
+                .build(authApi);
+        } else {
+            service = new ServiceBuilder(clientId)
+                .apiSecretIsEmptyStringUnsafe()
                 .build(authApi);
         }
         return this;

@@ -31,6 +31,7 @@ import com.google.gson.annotations.SerializedName
  * @param userStatus User Status
  */
 
+
 data class User (
 
     @SerializedName("id")
@@ -58,5 +59,8 @@ data class User (
     @SerializedName("userStatus")
     val userStatus: kotlin.Int? = null
 
-)
+) {
+
+
+}
 

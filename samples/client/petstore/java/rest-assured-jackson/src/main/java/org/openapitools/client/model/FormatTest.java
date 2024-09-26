@@ -20,8 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -53,7 +51,7 @@ import org.hibernate.validator.constraints.*;
   FormatTest.JSON_PROPERTY_BIG_DECIMAL
 })
 @JsonTypeName("format_test")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.9.0-SNAPSHOT")
 public class FormatTest {
   public static final String JSON_PROPERTY_INTEGER = "integer";
   private Integer integer;
@@ -106,14 +104,14 @@ public class FormatTest {
     return this;
   }
 
-   /**
+  /**
    * Get integer
    * minimum: 10
    * maximum: 100
    * @return integer
-  **/
+   */
   @javax.annotation.Nullable
- @Min(10) @Max(100)  @ApiModelProperty(value = "")
+ @Min(10) @Max(100)
   @JsonProperty(JSON_PROPERTY_INTEGER)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -128,21 +126,20 @@ public class FormatTest {
     this.integer = integer;
   }
 
-
   public FormatTest int32(Integer int32) {
     
     this.int32 = int32;
     return this;
   }
 
-   /**
+  /**
    * Get int32
    * minimum: 20
    * maximum: 200
    * @return int32
-  **/
+   */
   @javax.annotation.Nullable
- @Min(20) @Max(200)  @ApiModelProperty(value = "")
+ @Min(20) @Max(200)
   @JsonProperty(JSON_PROPERTY_INT32)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -157,19 +154,18 @@ public class FormatTest {
     this.int32 = int32;
   }
 
-
   public FormatTest int64(Long int64) {
     
     this.int64 = int64;
     return this;
   }
 
-   /**
+  /**
    * Get int64
    * @return int64
-  **/
+   */
   @javax.annotation.Nullable
-  @ApiModelProperty(value = "")
+
   @JsonProperty(JSON_PROPERTY_INT64)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -184,23 +180,22 @@ public class FormatTest {
     this.int64 = int64;
   }
 
-
   public FormatTest number(BigDecimal number) {
     
     this.number = number;
     return this;
   }
 
-   /**
+  /**
    * Get number
    * minimum: 32.1
    * maximum: 543.2
    * @return number
-  **/
+   */
   @javax.annotation.Nonnull
   @NotNull
   @Valid
- @DecimalMin("32.1") @DecimalMax("543.2")  @ApiModelProperty(required = true, value = "")
+ @DecimalMin("32.1") @DecimalMax("543.2")
   @JsonProperty(JSON_PROPERTY_NUMBER)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -215,21 +210,20 @@ public class FormatTest {
     this.number = number;
   }
 
-
   public FormatTest _float(Float _float) {
     
     this._float = _float;
     return this;
   }
 
-   /**
+  /**
    * Get _float
    * minimum: 54.3
    * maximum: 987.6
    * @return _float
-  **/
+   */
   @javax.annotation.Nullable
- @DecimalMin("54.3") @DecimalMax("987.6")  @ApiModelProperty(value = "")
+ @DecimalMin("54.3") @DecimalMax("987.6")
   @JsonProperty(JSON_PROPERTY_FLOAT)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -244,21 +238,20 @@ public class FormatTest {
     this._float = _float;
   }
 
-
   public FormatTest _double(Double _double) {
     
     this._double = _double;
     return this;
   }
 
-   /**
+  /**
    * Get _double
    * minimum: 67.8
    * maximum: 123.4
    * @return _double
-  **/
+   */
   @javax.annotation.Nullable
- @DecimalMin("67.8") @DecimalMax("123.4")  @ApiModelProperty(value = "")
+ @DecimalMin("67.8") @DecimalMax("123.4")
   @JsonProperty(JSON_PROPERTY_DOUBLE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -273,19 +266,18 @@ public class FormatTest {
     this._double = _double;
   }
 
-
   public FormatTest string(String string) {
     
     this.string = string;
     return this;
   }
 
-   /**
+  /**
    * Get string
    * @return string
-  **/
+   */
   @javax.annotation.Nullable
- @Pattern(regexp="/[a-z]/i")  @ApiModelProperty(value = "")
+ @Pattern(regexp="/[a-z]/i")
   @JsonProperty(JSON_PROPERTY_STRING)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -300,20 +292,19 @@ public class FormatTest {
     this.string = string;
   }
 
-
   public FormatTest _byte(byte[] _byte) {
     
     this._byte = _byte;
     return this;
   }
 
-   /**
+  /**
    * Get _byte
    * @return _byte
-  **/
+   */
   @javax.annotation.Nonnull
   @NotNull
-  @ApiModelProperty(required = true, value = "")
+
   @JsonProperty(JSON_PROPERTY_BYTE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -328,20 +319,19 @@ public class FormatTest {
     this._byte = _byte;
   }
 
-
   public FormatTest binary(File binary) {
     
     this.binary = binary;
     return this;
   }
 
-   /**
+  /**
    * Get binary
    * @return binary
-  **/
+   */
   @javax.annotation.Nullable
   @Valid
-  @ApiModelProperty(value = "")
+
   @JsonProperty(JSON_PROPERTY_BINARY)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -356,21 +346,20 @@ public class FormatTest {
     this.binary = binary;
   }
 
-
   public FormatTest date(LocalDate date) {
     
     this.date = date;
     return this;
   }
 
-   /**
+  /**
    * Get date
    * @return date
-  **/
+   */
   @javax.annotation.Nonnull
   @NotNull
   @Valid
-  @ApiModelProperty(required = true, value = "")
+
   @JsonProperty(JSON_PROPERTY_DATE)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -385,20 +374,19 @@ public class FormatTest {
     this.date = date;
   }
 
-
   public FormatTest dateTime(OffsetDateTime dateTime) {
     
     this.dateTime = dateTime;
     return this;
   }
 
-   /**
+  /**
    * Get dateTime
    * @return dateTime
-  **/
+   */
   @javax.annotation.Nullable
   @Valid
-  @ApiModelProperty(value = "")
+
   @JsonProperty(JSON_PROPERTY_DATE_TIME)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -413,20 +401,19 @@ public class FormatTest {
     this.dateTime = dateTime;
   }
 
-
   public FormatTest uuid(UUID uuid) {
     
     this.uuid = uuid;
     return this;
   }
 
-   /**
+  /**
    * Get uuid
    * @return uuid
-  **/
+   */
   @javax.annotation.Nullable
   @Valid
-  @ApiModelProperty(example = "72f98069-206d-4f12-9f12-3d1e525a8e84", value = "")
+
   @JsonProperty(JSON_PROPERTY_UUID)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -441,20 +428,19 @@ public class FormatTest {
     this.uuid = uuid;
   }
 
-
   public FormatTest password(String password) {
     
     this.password = password;
     return this;
   }
 
-   /**
+  /**
    * Get password
    * @return password
-  **/
+   */
   @javax.annotation.Nonnull
   @NotNull
- @Size(min=10,max=64)  @ApiModelProperty(required = true, value = "")
+ @Size(min=10,max=64)
   @JsonProperty(JSON_PROPERTY_PASSWORD)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
 
@@ -469,20 +455,19 @@ public class FormatTest {
     this.password = password;
   }
 
-
   public FormatTest bigDecimal(BigDecimal bigDecimal) {
     
     this.bigDecimal = bigDecimal;
     return this;
   }
 
-   /**
+  /**
    * Get bigDecimal
    * @return bigDecimal
-  **/
+   */
   @javax.annotation.Nullable
   @Valid
-  @ApiModelProperty(value = "")
+
   @JsonProperty(JSON_PROPERTY_BIG_DECIMAL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -496,7 +481,6 @@ public class FormatTest {
   public void setBigDecimal(BigDecimal bigDecimal) {
     this.bigDecimal = bigDecimal;
   }
-
 
   @Override
   public boolean equals(Object o) {
@@ -544,7 +528,7 @@ public class FormatTest {
     sb.append("    date: ").append(toIndentedString(date)).append("\n");
     sb.append("    dateTime: ").append(toIndentedString(dateTime)).append("\n");
     sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
-    sb.append("    password: ").append(toIndentedString(password)).append("\n");
+    sb.append("    password: ").append("*").append("\n");
     sb.append("    bigDecimal: ").append(toIndentedString(bigDecimal)).append("\n");
     sb.append("}");
     return sb.toString();

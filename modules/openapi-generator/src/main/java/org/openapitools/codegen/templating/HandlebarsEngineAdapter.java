@@ -30,15 +30,19 @@ import com.github.jknack.handlebars.io.AbstractTemplateLoader;
 import com.github.jknack.handlebars.io.StringTemplateSource;
 import com.github.jknack.handlebars.io.TemplateLoader;
 import com.github.jknack.handlebars.io.TemplateSource;
+import lombok.Setter;
 import org.openapitools.codegen.api.AbstractTemplatingEngineAdapter;
 import org.openapitools.codegen.api.TemplatingExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class HandlebarsEngineAdapter extends AbstractTemplatingEngineAdapter {
      final Logger LOGGER = LoggerFactory.getLogger(HandlebarsEngineAdapter.class);
@@ -47,7 +51,7 @@ public class HandlebarsEngineAdapter extends AbstractTemplatingEngineAdapter {
     // We use this as a simple lookup for valid file name extensions. This adapter will inspect .mustache (built-in) and infer the relevant handlebars filename
     private final String[] canCompileFromExtensions = {".handlebars",".hbs",".mustache"};
     private boolean infiniteLoops = false;
-    private boolean prettyPrint = false;
+    @Setter private boolean prettyPrint = false;
 
     /**
      * Provides an identifier used to load the adapter. This could be a name, uuid, or any other string.
@@ -59,6 +63,7 @@ public class HandlebarsEngineAdapter extends AbstractTemplatingEngineAdapter {
         return "handlebars";
     }
 
+    @Override
     public String compileTemplate(TemplatingExecutor executor,
                                   Map<String, Object> bundle, String templateFile) throws IOException {
         TemplateLoader loader = new AbstractTemplateLoader() {
@@ -68,12 +73,35 @@ public class HandlebarsEngineAdapter extends AbstractTemplatingEngineAdapter {
             }
         };
 
+        // $ref: https://github.com/jknack/handlebars.java/issues/917
+        var MY_FIELD_VALUE_RESOLVER = new FieldValueResolver() {
+            @Override
+            protected Set<FieldWrapper> members(
+                    Class<?> clazz) {
+                var members = super.members(clazz);
+                return members.stream()
+                    .filter(fw -> isValidField(fw))
+                    .collect(Collectors.toSet());
+            }
+
+            boolean isValidField(
+                    FieldWrapper fw) {
+                if (fw instanceof AccessibleObject) {
+                    if (isUseSetAccessible(fw)) {
+                        return true;
+                    }
+                    return false;
+                }
+                return true;
+            }
+        };
+
         Context context = Context
                 .newBuilder(bundle)
                 .resolver(
                         MapValueResolver.INSTANCE,
                         JavaBeanValueResolver.INSTANCE,
-                        FieldValueResolver.INSTANCE,
+                        MY_FIELD_VALUE_RESOLVER.INSTANCE,
                         MethodValueResolver.INSTANCE)
                 .build();
 
@@ -139,8 +167,5 @@ public class HandlebarsEngineAdapter extends AbstractTemplatingEngineAdapter {
         return this;
     }
 
-    public void setPrettyPrint(boolean prettyPrint) {
-        this.prettyPrint = prettyPrint;
-    }
 }
 

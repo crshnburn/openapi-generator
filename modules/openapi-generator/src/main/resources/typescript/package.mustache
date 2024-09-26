@@ -23,8 +23,19 @@
   "type": "commonjs",
   {{/supportsES6}}
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      {{#supportsES6}}
+      "import": "./dist/index.js",
+      {{/supportsES6}}
+      {{^supportsES6}}
+      "require": "./dist/index.js",
+      {{/supportsES6}}
+      "types": "./dist/index.d.js"
+    }
   },
+  "files": [
+    "dist"
+  ],
   "typings": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc",
@@ -52,7 +63,6 @@
       {{#node}}
     "@types/node": "*",
     "form-data": "^2.5.0",
-    "btoa": "^1.2.1",
       {{/node}}
     {{/platforms}}
     {{#useRxJS}}

@@ -33,8 +33,7 @@ User <- R6::R6Class(
     `userStatus` = NULL,
     `_field_list` = c("id", "username", "firstName", "lastName", "email", "password", "phone", "userStatus"),
     `additional_properties` = list(),
-    #' Initialize a new User class.
-    #'
+
     #' @description
     #' Initialize a new User class.
     #'
@@ -46,40 +45,55 @@ User <- R6::R6Class(
     #' @param password password
     #' @param phone phone
     #' @param userStatus User Status
-    #' @param additional_properties additonal properties (optional)
+    #' @param additional_properties additional properties (optional)
     #' @param ... Other optional arguments.
-    #' @export
     initialize = function(`id` = NULL, `username` = NULL, `firstName` = NULL, `lastName` = NULL, `email` = NULL, `password` = NULL, `phone` = NULL, `userStatus` = NULL, additional_properties = NULL, ...) {
       if (!is.null(`id`)) {
-        stopifnot(is.numeric(`id`), length(`id`) == 1)
+        if (!(is.numeric(`id`) && length(`id`) == 1)) {
+          stop(paste("Error! Invalid data for `id`. Must be an integer:", `id`))
+        }
         self$`id` <- `id`
       }
       if (!is.null(`username`)) {
-        stopifnot(is.character(`username`), length(`username`) == 1)
+        if (!(is.character(`username`) && length(`username`) == 1)) {
+          stop(paste("Error! Invalid data for `username`. Must be a string:", `username`))
+        }
         self$`username` <- `username`
       }
       if (!is.null(`firstName`)) {
-        stopifnot(is.character(`firstName`), length(`firstName`) == 1)
+        if (!(is.character(`firstName`) && length(`firstName`) == 1)) {
+          stop(paste("Error! Invalid data for `firstName`. Must be a string:", `firstName`))
+        }
         self$`firstName` <- `firstName`
       }
       if (!is.null(`lastName`)) {
-        stopifnot(is.character(`lastName`), length(`lastName`) == 1)
+        if (!(is.character(`lastName`) && length(`lastName`) == 1)) {
+          stop(paste("Error! Invalid data for `lastName`. Must be a string:", `lastName`))
+        }
         self$`lastName` <- `lastName`
       }
       if (!is.null(`email`)) {
-        stopifnot(is.character(`email`), length(`email`) == 1)
+        if (!(is.character(`email`) && length(`email`) == 1)) {
+          stop(paste("Error! Invalid data for `email`. Must be a string:", `email`))
+        }
         self$`email` <- `email`
       }
       if (!is.null(`password`)) {
-        stopifnot(is.character(`password`), length(`password`) == 1)
+        if (!(is.character(`password`) && length(`password`) == 1)) {
+          stop(paste("Error! Invalid data for `password`. Must be a string:", `password`))
+        }
         self$`password` <- `password`
       }
       if (!is.null(`phone`)) {
-        stopifnot(is.character(`phone`), length(`phone`) == 1)
+        if (!(is.character(`phone`) && length(`phone`) == 1)) {
+          stop(paste("Error! Invalid data for `phone`. Must be a string:", `phone`))
+        }
         self$`phone` <- `phone`
       }
       if (!is.null(`userStatus`)) {
-        stopifnot(is.numeric(`userStatus`), length(`userStatus`) == 1)
+        if (!(is.numeric(`userStatus`) && length(`userStatus`) == 1)) {
+          stop(paste("Error! Invalid data for `userStatus`. Must be an integer:", `userStatus`))
+        }
         self$`userStatus` <- `userStatus`
       }
       if (!is.null(additional_properties)) {
@@ -88,13 +102,11 @@ User <- R6::R6Class(
         }
       }
     },
-    #' To JSON string
-    #'
+
     #' @description
     #' To JSON String
     #'
     #' @return User in JSON format
-    #' @export
     toJSON = function() {
       UserObject <- list()
       if (!is.null(self$`id`)) {
@@ -135,14 +147,12 @@ User <- R6::R6Class(
 
       UserObject
     },
-    #' Deserialize JSON string into an instance of User
-    #'
+
     #' @description
     #' Deserialize JSON string into an instance of User
     #'
     #' @param input_json the JSON input
     #' @return the instance of User
-    #' @export
     fromJSON = function(input_json) {
       this_object <- jsonlite::fromJSON(input_json)
       if (!is.null(this_object$`id`)) {
@@ -178,13 +188,11 @@ User <- R6::R6Class(
 
       self
     },
-    #' To JSON string
-    #'
+
     #' @description
     #' To JSON String
     #'
     #' @return User in JSON format
-    #' @export
     toJSONString = function() {
       jsoncontent <- c(
         if (!is.null(self$`id`)) {
@@ -260,14 +268,12 @@ User <- R6::R6Class(
       }
       json_string <- as.character(jsonlite::minify(jsonlite::toJSON(json_obj, auto_unbox = TRUE, digits = NA)))
     },
-    #' Deserialize JSON string into an instance of User
-    #'
+
     #' @description
     #' Deserialize JSON string into an instance of User
     #'
     #' @param input_json the JSON input
     #' @return the instance of User
-    #' @export
     fromJSONString = function(input_json) {
       this_object <- jsonlite::fromJSON(input_json)
       self$`id` <- this_object$`id`
@@ -287,53 +293,42 @@ User <- R6::R6Class(
 
       self
     },
-    #' Validate JSON input with respect to User
-    #'
+
     #' @description
     #' Validate JSON input with respect to User and throw an exception if invalid
     #'
     #' @param input the JSON input
-    #' @export
     validateJSON = function(input) {
       input_json <- jsonlite::fromJSON(input)
     },
-    #' To string (JSON format)
-    #'
+
     #' @description
     #' To string (JSON format)
     #'
     #' @return String representation of User
-    #' @export
     toString = function() {
       self$toJSONString()
     },
-    #' Return true if the values in all fields are valid.
-    #'
+
     #' @description
     #' Return true if the values in all fields are valid.
     #'
     #' @return true if the values in all fields are valid.
-    #' @export
     isValid = function() {
       TRUE
     },
-    #' Return a list of invalid fields (if any).
-    #'
+
     #' @description
     #' Return a list of invalid fields (if any).
     #'
     #' @return A list of invalid fields (if any).
-    #' @export
     getInvalidFields = function() {
       invalid_fields <- list()
       invalid_fields
     },
-    #' Print the object
-    #'
+
     #' @description
     #' Print the object
-    #'
-    #' @export
     print = function() {
       print(jsonlite::prettify(self$toJSONString()))
       invisible(self)
@@ -345,7 +340,7 @@ User <- R6::R6Class(
 ## Uncomment below to unlock the class to allow modifications of the method or field
 # User$unlock()
 #
-## Below is an example to define the print fnuction
+## Below is an example to define the print function
 # User$set("public", "print", function(...) {
 #   print(jsonlite::prettify(self$toJSONString()))
 #   invisible(self)

@@ -20,15 +20,12 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import java.io.IOException;
 
 /**
  * Must be named &#x60;File&#x60; for test.
  */
-@ApiModel(description = "Must be named `File` for test.")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.9.0-SNAPSHOT")
 public class ModelFile {
   public static final String SERIALIZED_NAME_SOURCE_U_R_I = "sourceURI";
   @SerializedName(SERIALIZED_NAME_SOURCE_U_R_I)
@@ -43,12 +40,11 @@ public class ModelFile {
     return this;
   }
 
-   /**
+  /**
    * Test capitalization
    * @return sourceURI
-  **/
+   */
   @javax.annotation.Nullable
-  @ApiModelProperty(value = "Test capitalization")
 
   public String getSourceURI() {
     return sourceURI;
@@ -58,7 +54,6 @@ public class ModelFile {
   public void setSourceURI(String sourceURI) {
     this.sourceURI = sourceURI;
   }
-
 
   @Override
   public boolean equals(Object o) {

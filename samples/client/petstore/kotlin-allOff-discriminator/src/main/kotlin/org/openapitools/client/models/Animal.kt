@@ -17,6 +17,7 @@ package org.openapitools.client.models
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -24,9 +25,11 @@ import com.squareup.moshi.Json
  * @param id 
  */
 
+
 interface Animal {
 
     @Json(name = "id")
     val id: java.util.UUID
+
 }
 

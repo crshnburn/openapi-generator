@@ -17,6 +17,7 @@ package org.openapitools.client.models
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import java.io.Serializable
 
 /**
@@ -26,6 +27,7 @@ import java.io.Serializable
  * @param type 
  * @param message 
  */
+
 
 data class ModelApiResponse (
 
@@ -42,6 +44,7 @@ data class ModelApiResponse (
     companion object {
         private const val serialVersionUID: Long = 123
     }
+
 
 }
 

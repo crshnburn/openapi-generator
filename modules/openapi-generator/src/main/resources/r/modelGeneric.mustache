@@ -34,8 +34,7 @@
     `_discriminator_property_name` = '{{discriminator.propertyName}}',
     {{#discriminator.mappedModels}}{{#-first}}`_discriminator_mapping_name` = c({{/-first}}'{{mappingName}}' = '{{modelName}}'{{^-last}}, {{/-last}}{{#-last}}),{{/-last}}{{/discriminator.mappedModels}}
     {{/discriminator}}
-    #' Initialize a new {{{classname}}} class.
-    #'
+
     #' @description
     #' Initialize a new {{{classname}}} class.
     #'
@@ -46,51 +45,62 @@
     #' @param {{name}} {{#lambdaRdocEscape}}{{{description}}}{{/lambdaRdocEscape}}{{^description}}{{{name}}}{{/description}}{{#defaultValue}}. Default to {{{.}}}.{{/defaultValue}}
     {{/optionalVars}}
     {{#isAdditionalPropertiesTrue}}
-    #' @param additional_properties additonal properties (optional)
+    #' @param additional_properties additional properties (optional)
     {{/isAdditionalPropertiesTrue}}
     #' @param ... Other optional arguments.
-    #' @export
     initialize = function({{#requiredVars}}`{{name}}`, {{/requiredVars}}{{#optionalVars}}`{{name}}` = {{{defaultValue}}}{{^defaultValue}}NULL{{/defaultValue}}, {{/optionalVars}}{{#isAdditionalPropertiesTrue}}additional_properties = NULL, {{/isAdditionalPropertiesTrue}}...) {
       {{#requiredVars}}
       if (!missing(`{{name}}`)) {
         {{^isContainer}}
-        {{#isEnum}}
+        {{#isEnumOrRef}}
         if (!(`{{name}}` %in% c({{#_enum}}"{{{.}}}"{{^-last}}, {{/-last}}{{/_enum}}))) {
           stop(paste("Error! \"", `{{name}}`, "\" cannot be assigned to `{{name}}`. Must be {{#_enum}}\"{{{.}}}\"{{^-last}}, {{/-last}}{{/_enum}}.", sep = ""))
         }
-        {{/isEnum}}
+        {{/isEnumOrRef}}
         {{#isInteger}}
-        stopifnot(is.numeric(`{{name}}`), length(`{{name}}`) == 1)
+        if (!(is.numeric(`{{name}}`) && length(`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be an integer:", `{{name}}`))
+        }
         {{/isInteger}}
         {{#isLong}}
-        stopifnot(is.numeric(`{{name}}`), length(`{{name}}`) == 1)
+        if (!(is.numeric(`{{name}}`) && length(`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be an integer:", `{{name}}`))
+        }
         {{/isLong}}
         {{#isFloat}}
-        stopifnot(is.numeric(`{{name}}`), length(`{{name}}`) == 1)
+        if (!(is.numeric(`{{name}}`) && length(`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a number:", `{{name}}`))
+        }
         {{/isFloat}}
         {{#isDouble}}
-        stopifnot(is.numeric(`{{name}}`), length(`{{name}}`) == 1)
+        if (!(is.numeric(`{{name}}`) && length(`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a number:", `{{name}}`))
+        }
         {{/isDouble}}
         {{#isString}}
-        stopifnot(is.character(`{{name}}`), length(`{{name}}`) == 1)
+        if (!(is.character(`{{name}}`) && length(`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a string:", `{{name}}`))
+        }
         {{/isString}}
         {{#isBoolean}}
-        stopifnot(is.logical(`{{name}}`), length(`{{name}}`) == 1)
+        if (!(is.logical(`{{name}}`) && length(`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a boolean:", `{{name}}`))
+        }
         {{/isBoolean}}
         {{#isDate}}
-        if (!is.character(`{{name}}`)) {
-          stop(paste("Error! Invalid Date. Must be a string:", `{{name}}`))
+        if (!(is.character(`{{name}}`) && length(`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a string:", `{{name}}`))
         }
         {{/isDate}}
         {{#isDateTime}}
-        if (!is.character(`{{name}}`)) {
-          stop(paste("Error! Invalid DateTime. Must be a string:", `{{name}}`))
+        if (!(is.character(`{{name}}`) && length(`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a string:", `{{name}}`))
         }
         {{/isDateTime}}
         {{#isUri}}
         # to validate URL. ref: https://stackoverflow.com/questions/73952024/url-validation-in-r
         if (!stringr::str_detect(`{{name}}`, "(https?|ftp)://[^ /$.?#].[^\\s]*")) {
-          stop(paste("Error! Invalid URL:", `{{name}}`))
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a URL:", `{{name}}`))
         }
         {{/isUri}}
         {{^isPrimitiveType}}
@@ -114,43 +124,55 @@
       {{#optionalVars}}
       if (!is.null(`{{name}}`)) {
         {{^isContainer}}
-        {{#isEnum}}
+        {{#isEnumOrRef}}
         if (!(`{{name}}` %in% c({{#_enum}}"{{{.}}}"{{^-last}}, {{/-last}}{{/_enum}}))) {
           stop(paste("Error! \"", `{{name}}`, "\" cannot be assigned to `{{name}}`. Must be {{#_enum}}\"{{{.}}}\"{{^-last}}, {{/-last}}{{/_enum}}.", sep = ""))
         }
-        {{/isEnum}}
+        {{/isEnumOrRef}}
         {{#isInteger}}
-        stopifnot(is.numeric(`{{name}}`), length(`{{name}}`) == 1)
+        if (!(is.numeric(`{{name}}`) && length(`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be an integer:", `{{name}}`))
+        }
         {{/isInteger}}
         {{#isLong}}
-        stopifnot(is.numeric(`{{name}}`), length(`{{name}}`) == 1)
+        if (!(is.numeric(`{{name}}`) && length(`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be an integer:", `{{name}}`))
+        }
         {{/isLong}}
         {{#isFloat}}
-        stopifnot(is.numeric(`{{name}}`), length(`{{name}}`) == 1)
+        if (!(is.numeric(`{{name}}`) && length(`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a number:", `{{name}}`))
+        }
         {{/isFloat}}
         {{#isDouble}}
-        stopifnot(is.numeric(`{{name}}`), length(`{{name}}`) == 1)
+        if (!(is.numeric(`{{name}}`) && length(`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a number:", `{{name}}`))
+        }
         {{/isDouble}}
         {{#isString}}
-        stopifnot(is.character(`{{name}}`), length(`{{name}}`) == 1)
+        if (!(is.character(`{{name}}`) && length(`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a string:", `{{name}}`))
+        }
         {{/isString}}
         {{#isBoolean}}
-        stopifnot(is.logical(`{{name}}`), length(`{{name}}`) == 1)
+        if (!(is.logical(`{{name}}`) && length(`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a boolean:", `{{name}}`))
+        }
         {{/isBoolean}}
         {{#isDate}}
         if (!is.character(`{{name}}`)) {
-          stop(paste("Error! Invalid Date. Must be a string:", `{{name}}`))
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a string:", `{{name}}`))
         }
         {{/isDate}}
         {{#isDateTime}}
         if (!is.character(`{{name}}`)) {
-          stop(paste("Error! Invalid DateTime. Must be a string:", `{{name}}`))
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a string:", `{{name}}`))
         }
         {{/isDateTime}}
         {{#isUri}}
         # to validate URL. ref: https://stackoverflow.com/questions/73952024/url-validation-in-r
         if (!stringr::str_detect(`{{name}}`, "(https?|ftp)://[^ /$.?#].[^\\s]*")) {
-          stop(paste("Error! Invalid URL:", `{{name}}`))
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a URL:", `{{name}}`))
         }
         {{/isUri}}
         {{^isPrimitiveType}}
@@ -179,13 +201,11 @@
       }
       {{/isAdditionalPropertiesTrue}}
     },
-    #' To JSON string
-    #'
+
     #' @description
     #' To JSON String
     #'
     #' @return {{{classname}}} in JSON format
-    #' @export
     toJSON = function() {
       {{classname}}Object <- list()
       {{#vars}}
@@ -227,14 +247,12 @@
       {{/isAdditionalPropertiesTrue}}
       {{classname}}Object
     },
-    #' Deserialize JSON string into an instance of {{{classname}}}
-    #'
+
     #' @description
     #' Deserialize JSON string into an instance of {{{classname}}}
     #'
     #' @param input_json the JSON input
     #' @return the instance of {{{classname}}}
-    #' @export
     fromJSON = function(input_json) {
       this_object <- jsonlite::fromJSON(input_json)
       {{#vars}}
@@ -251,23 +269,23 @@
         {{/isContainer}}
         {{^isContainer}}
         {{#isPrimitiveType}}
-        {{#isEnum}}
+        {{#isEnumOrRef}}
         if (!is.null(this_object$`{{baseName}}`) && !(this_object$`{{baseName}}` %in% c({{#_enum}}"{{{.}}}"{{^-last}}, {{/-last}}{{/_enum}}))) {
           stop(paste("Error! \"", this_object$`{{baseName}}`, "\" cannot be assigned to `{{baseName}}`. Must be {{#_enum}}\"{{{.}}}\"{{^-last}}, {{/-last}}{{/_enum}}.", sep = ""))
         }
-        {{/isEnum}}
+        {{/isEnumOrRef}}
         {{#isUri}}
         # to validate URL. ref: https://stackoverflow.com/questions/73952024/url-validation-in-r
         if (!stringr::str_detect(this_object$`{{baseName}}`, "(https?|ftp)://[^ /$.?#].[^\\s]*")) {
-          stop(paste("Error! Invalid URL:", this_object$`{{baseName}}`))
+          stop(paste("Error! Invalid data for `{{baseName}}`. Must be a URL:", this_object$`{{baseName}}`))
         }
         {{/isUri}}
         self$`{{name}}` <- this_object$`{{baseName}}`
         {{/isPrimitiveType}}
         {{^isPrimitiveType}}
-        {{#lambda.lowercase}}{{{name}}}{{/lambda.lowercase}}_object <- {{dataType}}$new()
-        {{#lambda.lowercase}}{{{name}}}{{/lambda.lowercase}}_object$fromJSON(jsonlite::toJSON(this_object${{baseName}}, auto_unbox = TRUE, digits = NA))
-        self$`{{name}}` <- {{#lambda.lowercase}}{{{name}}}{{/lambda.lowercase}}_object
+        `{{#lambda.lowercase}}{{{name}}}{{/lambda.lowercase}}_object` <- {{dataType}}$new()
+        `{{#lambda.lowercase}}{{{name}}}{{/lambda.lowercase}}_object`$fromJSON(jsonlite::toJSON(this_object$`{{baseName}}`, auto_unbox = TRUE, digits = NA))
+        self$`{{name}}` <- `{{#lambda.lowercase}}{{{name}}}{{/lambda.lowercase}}_object`
         {{/isPrimitiveType}}
         {{/isContainer}}
       }
@@ -283,13 +301,11 @@
       {{/isAdditionalPropertiesTrue}}
       self
     },
-    #' To JSON string
-    #'
+
     #' @description
     #' To JSON String
     #'
     #' @return {{{classname}}} in JSON format
-    #' @export
     toJSONString = function() {
       jsoncontent <- c(
       {{#vars}}
@@ -306,7 +322,7 @@
           {{/isArray}}
           {{#isMap}}
           {{#isPrimitiveType}}
-            {{#isNumeric}}%d{{/isNumeric}}{{^isNumeric}}{{^isBoolean}}"{{/isBoolean}}%s{{^isBoolean}}"{{/isBoolean}}{{/isNumeric}}
+            {{#isNumeric}}%d{{/isNumeric}}{{^isNumeric}}{{^isBoolean}}{{/isBoolean}}%s{{^isBoolean}}{{/isBoolean}}{{/isNumeric}}
           {{/isPrimitiveType}}
           {{^isPrimitiveType}}%s
           {{/isPrimitiveType}}
@@ -359,14 +375,12 @@
       json_string <- as.character(jsonlite::minify(jsonlite::toJSON(json_obj, auto_unbox = TRUE, digits = NA)))
       {{/isAdditionalPropertiesTrue}}
     },
-    #' Deserialize JSON string into an instance of {{{classname}}}
-    #'
+
     #' @description
     #' Deserialize JSON string into an instance of {{{classname}}}
     #'
     #' @param input_json the JSON input
     #' @return the instance of {{{classname}}}
-    #' @export
     fromJSONString = function(input_json) {
       this_object <- jsonlite::fromJSON(input_json)
       {{#vars}}
@@ -383,21 +397,21 @@
       {{/isContainer}}
       {{^isContainer}}
       {{#isPrimitiveType}}
-      {{#isEnum}}
+      {{#isEnumOrRef}}
       if (!is.null(this_object$`{{baseName}}`) && !(this_object$`{{baseName}}` %in% c({{#_enum}}"{{{.}}}"{{^-last}}, {{/-last}}{{/_enum}}))) {
         stop(paste("Error! \"", this_object$`{{baseName}}`, "\" cannot be assigned to `{{baseName}}`. Must be {{#_enum}}\"{{{.}}}\"{{^-last}}, {{/-last}}{{/_enum}}.", sep = ""))
       }
-      {{/isEnum}}
+      {{/isEnumOrRef}}
       {{#isUri}}
       # to validate URL. ref: https://stackoverflow.com/questions/73952024/url-validation-in-r
       if (!stringr::str_detect(this_object$`{{name}}`, "(https?|ftp)://[^ /$.?#].[^\\s]*")) {
-        stop(paste("Error! Invalid URL:", this_object$`{{name}}`))
+        stop(paste("Error! Invalid data for `{{name}}`. Must be a URL:", this_object$`{{name}}`))
       }
       {{/isUri}}
       self$`{{name}}` <- this_object$`{{name}}`
       {{/isPrimitiveType}}
       {{^isPrimitiveType}}
-      self$`{{name}}` <- {{dataType}}$new()$fromJSON(jsonlite::toJSON(this_object${{name}}, auto_unbox = TRUE, digits = NA))
+      self$`{{name}}` <- {{dataType}}$new()$fromJSON(jsonlite::toJSON(this_object$`{{name}}`, auto_unbox = TRUE, digits = NA))
       {{/isPrimitiveType}}
       {{/isContainer}}
       {{/vars}}
@@ -412,13 +426,11 @@
       {{/isAdditionalPropertiesTrue}}
       self
     },
-    #' Validate JSON input with respect to {{classname}}
-    #'
+
     #' @description
     #' Validate JSON input with respect to {{classname}} and throw an exception if invalid
     #'
     #' @param input the JSON input
-    #' @export
     validateJSON = function(input) {
       input_json <- jsonlite::fromJSON(input)
       {{#requiredVars}}
@@ -426,33 +438,49 @@
       if (!is.null(input_json$`{{name}}`)) {
         {{^isContainer}}
         {{#isInteger}}
-        stopifnot(is.numeric(input_json$`{{name}}`), length(input_json$`{{name}}`) == 1)
+        if (!(is.numeric(input_json$`{{name}}`) && length(input_json$`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be an integer:", input_json$`{{name}}`))
+        }
         {{/isInteger}}
         {{#isLong}}
-        stopifnot(is.numeric(input_json$`{{name}}`), length(input_json$`{{name}}`) == 1)
+        if (!(is.numeric(input_json$`{{name}}`) && length(input_json$`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be an integer:", input_json$`{{name}}`))
+        }
         {{/isLong}}
         {{#isFloat}}
-        stopifnot(is.numeric(input_json$`{{name}}`), length(input_json$`{{name}}`) == 1)
+        if (!(is.numeric(input_json$`{{name}}`) && length(input_json$`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a number:", input_json$`{{name}}`))
+        }
         {{/isFloat}}
         {{#isDouble}}
-        stopifnot(is.numeric(input_json$`{{name}}`), length(input_json$`{{name}}`) == 1)
+        if (!(is.numeric(input_json$`{{name}}`) && length(input_json$`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a number:", input_json$`{{name}}`))
+        }
         {{/isDouble}}
         {{#isString}}
-        stopifnot(is.character(input_json$`{{name}}`), length(input_json$`{{name}}`) == 1)
+        if (!(is.character(input_json$`{{name}}`) && length(input_json$`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a string:", input_json$`{{name}}`))
+        }
         {{/isString}}
         {{#isBoolean}}
-        stopifnot(is.logical(input_json$`{{name}}`), length(input_json$`{{name}}`) == 1)
+        if (!(is.logical(input_json$`{{name}}`) && length(input_json$`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a boolean:", input_json$`{{name}}`))
+        }
         {{/isBoolean}}
         {{#isDate}}
-        stopifnot(is.character(input_json$`{{name}}`), length(input_json$`{{name}}`) == 1)
+        if (!(is.character(input_json$`{{name}}`) && length(input_json$`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a string:", input_json$`{{name}}`))
+        }
         {{/isDate}}
         {{#isDateTime}}
-        stopifnot(is.character(input_json$`{{name}}`), length(input_json$`{{name}}`) == 1)
+        if (!(is.character(input_json$`{{name}}`) && length(input_json$`{{name}}`) == 1)) {
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a string:", input_json$`{{name}}`))
+        }
         {{/isDateTime}}
         {{#isUri}}
         # to validate URL. ref: https://stackoverflow.com/questions/73952024/url-validation-in-r
         if (!stringr::str_detect(input_json$`{{name}}`, "(https?|ftp)://[^ /$.?#].[^\\s]*")) {
-          stop(paste("Error! Invalid URL:", input_json$`{{name}}`))
+          stop(paste("Error! Invalid data for `{{name}}`. Must be a URL:", input_json$`{{name}}`))
         }
         {{/isUri}}
         {{^isPrimitiveType}}
@@ -475,23 +503,19 @@
       }
       {{/requiredVars}}
     },
-    #' To string (JSON format)
-    #'
+
     #' @description
     #' To string (JSON format)
     #'
     #' @return String representation of {{{classname}}}
-    #' @export
     toString = function() {
       self$toJSONString()
     },
-    #' Return true if the values in all fields are valid.
-    #'
+
     #' @description
     #' Return true if the values in all fields are valid.
     #'
     #' @return true if the values in all fields are valid.
-    #' @export
     isValid = function() {
       {{#allVars}}
       {{^isNullable}}
@@ -550,13 +574,11 @@
       {{/allVars}}
       TRUE
     },
-    #' Return a list of invalid fields (if any).
-    #'
+
     #' @description
     #' Return a list of invalid fields (if any).
     #'
     #' @return A list of invalid fields (if any).
-    #' @export
     getInvalidFields = function() {
       invalid_fields <- list()
       {{#allVars}}
@@ -616,12 +638,9 @@
       {{/allVars}}
       invalid_fields
     },
-    #' Print the object
-    #'
+
     #' @description
     #' Print the object
-    #'
-    #' @export
     print = function() {
       print(jsonlite::prettify(self$toJSONString()))
       invisible(self)
@@ -633,7 +652,7 @@
 ## Uncomment below to unlock the class to allow modifications of the method or field
 # {{classname}}$unlock()
 #
-## Below is an example to define the print fnuction
+## Below is an example to define the print function
 # {{classname}}$set("public", "print", function(...) {
 #   print(jsonlite::prettify(self$toJSONString()))
 #   invisible(self)

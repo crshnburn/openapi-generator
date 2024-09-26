@@ -26,6 +26,7 @@ import com.google.gson.annotations.SerializedName
  * @param message 
  */
 
+
 data class ModelApiResponse (
 
     @SerializedName("code")
@@ -37,5 +38,8 @@ data class ModelApiResponse (
     @SerializedName("message")
     val message: kotlin.String? = null
 
-)
+) {
+
+
+}
 

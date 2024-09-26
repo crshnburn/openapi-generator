@@ -22,10 +22,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.servers.Server;
+import lombok.Setter;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static org.openapitools.codegen.utils.CamelizeOption.LOWERCASE_FIRST_LETTER;
 import static org.openapitools.codegen.utils.StringUtils.*;
 
 public class BashClientCodegen extends DefaultCodegen implements CodegenConfig {
@@ -43,14 +44,14 @@ public class BashClientCodegen extends DefaultCodegen implements CodegenConfig {
 
     protected String apiVersion = "1.0.0";
 
-    protected String curlOptions;
-    protected boolean processMarkdown = false;
-    protected String scriptName = "client.sh";
-    protected boolean generateBashCompletion = false;
-    protected boolean generateZshCompletion = false;
-    protected String hostEnvironmentVariable;
-    protected String basicAuthEnvironmentVariable;
-    protected String apiKeyAuthEnvironmentVariable;
+    @Setter protected String curlOptions;
+    @Setter protected boolean processMarkdown = false;
+    @Setter protected String scriptName = "client.sh";
+    @Setter protected boolean generateBashCompletion = false;
+    @Setter protected boolean generateZshCompletion = false;
+    @Setter protected String hostEnvironmentVariable;
+    @Setter protected String basicAuthEnvironmentVariable;
+    @Setter protected String apiKeyAuthEnvironmentVariable;
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
 
@@ -332,40 +333,6 @@ public class BashClientCodegen extends DefaultCodegen implements CodegenConfig {
                 "Dockerfile.mustache", "", "Dockerfile"));
     }
 
-    public void setCurlOptions(String curlOptions) {
-        this.curlOptions = curlOptions;
-    }
-
-    public void setProcessMarkdown(boolean processMarkdown) {
-        this.processMarkdown = processMarkdown;
-    }
-
-    public void setScriptName(String scriptName) {
-        this.scriptName = scriptName;
-    }
-
-    public void setGenerateBashCompletion(boolean generateBashCompletion) {
-        this.generateBashCompletion = generateBashCompletion;
-    }
-
-    public void setGenerateZshCompletion(boolean generateZshCompletion) {
-        this.generateZshCompletion = generateZshCompletion;
-    }
-
-    public void setHostEnvironmentVariable(String hostEnvironmentVariable) {
-        this.hostEnvironmentVariable = hostEnvironmentVariable;
-    }
-
-    public void setBasicAuthEnvironmentVariable(String
-                                                        basicAuthEnvironmentVariable) {
-        this.basicAuthEnvironmentVariable = basicAuthEnvironmentVariable;
-    }
-
-    public void setApiKeyAuthEnvironmentVariable(String
-                                                         apiKeyAuthEnvironmentVariable) {
-        this.apiKeyAuthEnvironmentVariable = apiKeyAuthEnvironmentVariable;
-    }
-
 
     /**
      * Escapes a reserved word as defined in the `reservedWords` array. Handle
@@ -428,11 +395,10 @@ public class BashClientCodegen extends DefaultCodegen implements CodegenConfig {
     @Override
     public String getTypeDeclaration(Schema p) {
         if (ModelUtils.isArraySchema(p)) {
-            ArraySchema ap = (ArraySchema) p;
-            Schema inner = ap.getItems();
+            Schema inner = ModelUtils.getSchemaItems(p);
             return getSchemaType(p) + "[" + getTypeDeclaration(inner) + "]";
         } else if (ModelUtils.isMapSchema(p)) {
-            Schema inner = getAdditionalProperties(p);
+            Schema inner = ModelUtils.getAdditionalProperties(p);
             return getSchemaType(p) + "[String, " + getTypeDeclaration(inner) + "]";
         }
         return super.getTypeDeclaration(p);
@@ -807,7 +773,7 @@ public class BashClientCodegen extends DefaultCodegen implements CodegenConfig {
     public String toOperationId(String operationId) {
         // rename to empty_method_name_1 (e.g.) if method name is empty
         if (StringUtils.isEmpty(operationId)) {
-            operationId = camelize("empty_method_name_" + emptyMethodNameCounter++, true);
+            operationId = camelize("empty_method_name_" + emptyMethodNameCounter++, LOWERCASE_FIRST_LETTER);
             LOGGER.warn("Empty method name (operationId) found. Renamed to {}", operationId);
             return operationId;
         }
@@ -825,7 +791,7 @@ public class BashClientCodegen extends DefaultCodegen implements CodegenConfig {
             operationId = "call_" + operationId;
         }
 
-        return camelize(sanitizeName(operationId), true);
+        return camelize(sanitizeName(operationId), LOWERCASE_FIRST_LETTER);
     }
 
     @Override

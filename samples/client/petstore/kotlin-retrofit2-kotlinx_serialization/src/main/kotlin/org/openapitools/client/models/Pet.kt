@@ -34,6 +34,7 @@ import java.io.Serializable
  * @param status pet status in the store
  */
 @KSerializable
+
 data class Pet (
 
     @SerialName(value = "name")
@@ -71,5 +72,6 @@ data class Pet (
         @SerialName(value = "pending") PENDING("pending"),
         @SerialName(value = "sold") SOLD("sold");
     }
+
 }
 

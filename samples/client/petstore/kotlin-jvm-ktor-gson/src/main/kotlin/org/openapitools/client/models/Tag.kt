@@ -25,6 +25,7 @@ import com.google.gson.annotations.SerializedName
  * @param name 
  */
 
+
 data class Tag (
 
     @SerializedName("id")
@@ -33,5 +34,8 @@ data class Tag (
     @SerializedName("name")
     val name: kotlin.String? = null
 
-)
+) {
+
+
+}
 

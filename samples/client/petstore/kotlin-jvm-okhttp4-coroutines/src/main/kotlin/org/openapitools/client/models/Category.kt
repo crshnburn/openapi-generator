@@ -26,6 +26,7 @@ import java.io.Serializable
  * @param name 
  */
 
+
 data class Category (
 
     @SerializedName("id")
@@ -38,6 +39,7 @@ data class Category (
     companion object {
         private const val serialVersionUID: Long = 123
     }
+
 
 }
 

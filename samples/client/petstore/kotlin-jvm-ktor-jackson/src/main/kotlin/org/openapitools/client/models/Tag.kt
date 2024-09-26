@@ -16,6 +16,7 @@
 package org.openapitools.client.models
 
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
@@ -25,13 +26,17 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * @param name 
  */
 
+
 data class Tag (
 
-    @field:JsonProperty("id")
+    @get:JsonProperty("id")
     val id: kotlin.Long? = null,
 
-    @field:JsonProperty("name")
+    @get:JsonProperty("name")
     val name: kotlin.String? = null
 
-)
+) {
+
+
+}
 

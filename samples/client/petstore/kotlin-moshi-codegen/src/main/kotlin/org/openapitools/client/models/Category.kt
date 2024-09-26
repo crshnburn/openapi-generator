@@ -26,6 +26,7 @@ import com.squareup.moshi.JsonClass
  * @param name 
  */
 @JsonClass(generateAdapter = true)
+
 data class Category (
 
     @Json(name = "id")
@@ -34,5 +35,8 @@ data class Category (
     @Json(name = "name")
     val name: kotlin.String? = null
 
-)
+) {
+
+
+}
 

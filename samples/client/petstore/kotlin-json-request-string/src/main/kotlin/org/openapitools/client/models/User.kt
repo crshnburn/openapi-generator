@@ -41,6 +41,7 @@ import kotlinx.parcelize.Parcelize
  */
 @Parcelize
 @Serializable
+
 data class User (
 
     @SerialName(value = "id")
@@ -68,5 +69,8 @@ data class User (
     @SerialName(value = "userStatus")
     val userStatus: kotlin.Int? = null
 
-) : Parcelable
+) : Parcelable {
+
+
+}
 

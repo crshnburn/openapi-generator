@@ -31,6 +31,7 @@ import com.google.gson.annotations.SerializedName
  * @param propertyDouble3 
  */
 
+
 data class ModelWithPropertyHavingDefault (
 
     @SerializedName("propertyInt")
@@ -57,5 +58,8 @@ data class ModelWithPropertyHavingDefault (
     @SerializedName("propertyDouble3")
     val propertyDouble3: kotlin.Double? = 0.01
 
-)
+) {
+
+
+}
 

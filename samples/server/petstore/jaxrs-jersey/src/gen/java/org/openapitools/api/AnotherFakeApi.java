@@ -1,6 +1,5 @@
 package org.openapitools.api;
 
-import org.openapitools.model.*;
 import org.openapitools.api.AnotherFakeApiService;
 import org.openapitools.api.factories.AnotherFakeApiServiceFactory;
 
@@ -30,7 +29,7 @@ import javax.validation.Valid;
 
 
 @io.swagger.annotations.Api(description = "the another-fake API")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJerseyServerCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJerseyServerCodegen", comments = "Generator version: 7.9.0-SNAPSHOT")
 public class AnotherFakeApi  {
    private final AnotherFakeApiService delegate;
 
@@ -41,7 +40,7 @@ public class AnotherFakeApi  {
          String implClass = servletContext.getInitParameter("AnotherFakeApi.implementation");
          if (implClass != null && !"".equals(implClass.trim())) {
             try {
-               delegate = (AnotherFakeApiService) Class.forName(implClass).newInstance();
+               delegate = (AnotherFakeApiService) Class.forName(implClass).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                throw new RuntimeException(e);
             }

@@ -19,7 +19,6 @@ package org.openapitools.codegen.languages;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.apache.commons.io.FilenameUtils;
@@ -43,6 +42,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.openapitools.codegen.utils.CamelizeOption.LOWERCASE_FIRST_LETTER;
+import static org.openapitools.codegen.utils.CamelizeOption.UPPERCASE_FIRST_CHAR;
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 import static org.openapitools.codegen.utils.StringUtils.underscore;
 
@@ -145,14 +146,17 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
 
     final private static Pattern CONTAINS_JSON_MIME_PATTERN = Pattern.compile("(?i)application/.*json(;.*)?");
 
+    @Override
     public CodegenType getTag() {
         return CodegenType.CLIENT;
     }
 
+    @Override
     public String getName() {
         return "haskell-http-client";
     }
 
+    @Override
     public String getHelp() {
         return "Generates a Haskell http-client library.";
     }
@@ -365,11 +369,17 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
         }
     }
 
-    public void setDateTimeFormat(String value) { setStringProp(PROP_DATETIME_FORMAT, value); }
+    public void setDateTimeFormat(String value) {
+        setStringProp(PROP_DATETIME_FORMAT, value);
+    }
 
-    public void setDateTimeParseFormat(String value) { setStringProp(PROP_DATETIME_PARSE_FORMAT, value); }
+    public void setDateTimeParseFormat(String value) {
+        setStringProp(PROP_DATETIME_PARSE_FORMAT, value);
+    }
 
-    public void setDateFormat(String value) { setStringProp(PROP_DATE_FORMAT, value); }
+    public void setDateFormat(String value) {
+        setStringProp(PROP_DATE_FORMAT, value);
+    }
 
     public void setCabalPackage(String value) {
         setStringProp(PROP_CABAL_PACKAGE, value);
@@ -404,7 +414,9 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
         this.useKatip = value;
     }
 
-    public void setCustomTestInstanceModule(String value) { setStringProp(PROP_CUSTOM_TEST_INSTANCE_MODULE, value); }
+    public void setCustomTestInstanceModule(String value) {
+        setStringProp(PROP_CUSTOM_TEST_INSTANCE_MODULE, value);
+    }
 
     private void setStringProp(String key, String value) {
         if (StringUtils.isBlank(value)) {
@@ -540,7 +552,7 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
     public void preprocessOpenAPI(OpenAPI openAPI) {
         String baseTitle = openAPI.getInfo().getTitle();
 
-        if (baseTitle == null) {
+        if (StringUtils.isBlank(baseTitle)) {
             baseTitle = "OpenAPI";
         } else {
             baseTitle = baseTitle.trim();
@@ -643,11 +655,10 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
     @Override
     public String getTypeDeclaration(Schema p) {
         if (ModelUtils.isArraySchema(p)) {
-            ArraySchema ap = (ArraySchema) p;
-            Schema inner = ap.getItems();
+            Schema inner = ModelUtils.getSchemaItems(p);
             return "[" + getTypeDeclaration(inner) + "]";
         } else if (ModelUtils.isMapSchema(p)) {
-            Schema inner = getAdditionalProperties(p);
+            Schema inner = ModelUtils.getAdditionalProperties(p);
             return "(Map.Map String " + getTypeDeclaration(inner) + ")";
         }
         return super.getTypeDeclaration(p);
@@ -669,7 +680,7 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
     @Override
     public String toInstantiationType(Schema p) {
         if (ModelUtils.isMapSchema(p)) {
-            Schema additionalProperties2 = getAdditionalProperties(p);
+            Schema additionalProperties2 = ModelUtils.getAdditionalProperties(p);
             String type = additionalProperties2.getType();
             if (null == type) {
                 LOGGER.error("No Type defined for Additional Schema {}\n\tIn Schema: {}", additionalProperties2, p);
@@ -677,8 +688,7 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
             String inner = getSchemaType(additionalProperties2);
             return "(Map.Map Text " + inner + ")";
         } else if (ModelUtils.isArraySchema(p)) {
-            ArraySchema ap = (ArraySchema) p;
-            return getSchemaType(ap.getItems());
+            return getSchemaType(ModelUtils.getSchemaItems(p));
         } else {
             return null;
         }
@@ -735,10 +745,15 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
             param.vendorExtensions.put(VENDOR_EXTENSION_X_IS_BODY_OR_FORM_PARAM, param.isBodyParam || param.isFormParam);
             if (!StringUtils.isBlank(param.collectionFormat)) {
                 param.vendorExtensions.put(VENDOR_EXTENSION_X_COLLECTION_FORMAT, mapCollectionFormat(param.collectionFormat));
-            } else if (!param.isBodyParam && (param.isArray || param.dataType.startsWith("["))) { // param.isArray is sometimes false for list types
-                // defaulting due to https://github.com/wing328/openapi-generator/issues/72
-                param.collectionFormat = "csv";
-                param.vendorExtensions.put(VENDOR_EXTENSION_X_COLLECTION_FORMAT, mapCollectionFormat(param.collectionFormat));
+            } else if (!param.isBodyParam) {
+                if (param.isArray || param.dataType.startsWith("[")) { // param.isArray is sometimes false for list types
+                    // defaulting due to https://github.com/wing328/openapi-generator/issues/72
+                    param.collectionFormat = "csv";
+                    param.vendorExtensions.put(VENDOR_EXTENSION_X_COLLECTION_FORMAT, mapCollectionFormat(param.collectionFormat));
+                }
+            }
+            if (param.isQueryParam && (isJsonMimeType(param.contentType) || ContainsJsonMimeType(param.contentType))) {
+                param.vendorExtensions.put(X_MEDIA_IS_JSON, "true");
             }
             if (!param.required) {
                 op.vendorExtensions.put(VENDOR_EXTENSION_X_HAS_OPTIONAL_PARAMS, true);
@@ -1167,13 +1182,21 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
 
     @Override
     public String toVarName(String name) {
+        if (nameMapping.containsKey(name)) {
+            return nameMapping.get(name);
+        }
+
         return toVarName("", name);
     }
 
     public String toVarName(String prefix, String name) {
-        Boolean hasPrefix = !StringUtils.isBlank(prefix);
+        boolean hasPrefix = !StringUtils.isBlank(prefix);
         name = underscore(sanitizeName(name.replaceAll("-", "_")));
-        name = camelize(name, !hasPrefix);
+        if (name.equals("_")) {
+            name = "underscore";
+        }
+        name = camelize(name, hasPrefix ? UPPERCASE_FIRST_CHAR : LOWERCASE_FIRST_LETTER);
+
         if (hasPrefix) {
             return prefix + name;
         } else {
@@ -1187,6 +1210,10 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
 
     @Override
     public String toParamName(String name) {
+        if (parameterNameMapping.containsKey(name)) {
+            return parameterNameMapping.get(name);
+        }
+
         return toVarName(name);
     }
 
@@ -1200,6 +1227,7 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
         return toTypeName("Model", name);
     }
 
+    @Override
     public String toApiName(String name) {
         if (name.length() == 0) {
             return "Default";
@@ -1227,7 +1255,7 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
         if (StringUtils.isEmpty(operationId)) {
             throw new RuntimeException("Empty method/operation name (operationId) not allowed");
         }
-        operationId = escapeIdentifier("op", camelize(sanitizeName(operationId), true));
+        operationId = escapeIdentifier("op", camelize(sanitizeName(operationId), LOWERCASE_FIRST_LETTER));
         return operationId;
     }
 
@@ -1257,7 +1285,7 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
     public String toDefaultValue(Schema p) {
         if (ModelUtils.isStringSchema(p)) {
             if (p.getDefault() != null) {
-                return "\"" + escapeText((String) p.getDefault()) + "\"";
+                return "\"" + escapeText((String.valueOf(p.getDefault()))) + "\"";
             }
         } else if (ModelUtils.isBooleanSchema(p)) {
             if (p.getDefault() != null) {
@@ -1420,6 +1448,7 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
     }
 
     // override with any special text escaping logic
+    @Override
     @SuppressWarnings("static-method")
     public String escapeText(String input) {
         if (input == null) {
@@ -1433,8 +1462,8 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
         // finally escalate characters avoiding code injection
         return escapeUnsafeCharacters(
                 StringEscapeUtils.unescapeJava(
-                        StringEscapeUtils.escapeJava(input)
-                                .replace("\\/", "/"))
+                                StringEscapeUtils.escapeJava(input)
+                                        .replace("\\/", "/"))
                         .replaceAll("[\\t\\n\\r]", " ")
                         .replace("\\", "\\\\")
                         .replace("\"", "\\\""));
@@ -1468,10 +1497,13 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
             }
         }
     }
+
     static boolean ContainsJsonMimeType(String mime) {
-            return mime != null && CONTAINS_JSON_MIME_PATTERN.matcher(mime).matches();
+        return mime != null && CONTAINS_JSON_MIME_PATTERN.matcher(mime).matches();
     }
 
     @Override
-    public GeneratorLanguage generatorLanguage() { return GeneratorLanguage.HASKELL; }
+    public GeneratorLanguage generatorLanguage() {
+        return GeneratorLanguage.HASKELL;
+    }
 }

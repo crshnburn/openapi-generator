@@ -36,6 +36,7 @@ import kotlinx.parcelize.Parcelize
  */
 @Parcelize
 @Serializable
+
 data class ModelApiResponse (
 
     @SerialName(value = "code")
@@ -47,5 +48,8 @@ data class ModelApiResponse (
     @SerialName(value = "message")
     val message: kotlin.String? = null
 
-) : Parcelable
+) : Parcelable {
+
+
+}
 

@@ -28,6 +28,7 @@ import java.io.Serializable
  * @param name 
  */
 @KSerializable
+
 data class Tag (
 
     @SerialName(value = "id")
@@ -40,6 +41,7 @@ data class Tag (
     companion object {
         private const val serialVersionUID: Long = 123
     }
+
 
 }
 

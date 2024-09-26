@@ -27,6 +27,7 @@ import com.squareup.moshi.JsonClass
  * @param message 
  */
 @JsonClass(generateAdapter = true)
+
 data class ModelApiResponse (
 
     @Json(name = "code")
@@ -38,5 +39,8 @@ data class ModelApiResponse (
     @Json(name = "message")
     val message: kotlin.String? = null
 
-)
+) {
+
+
+}
 

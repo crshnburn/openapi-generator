@@ -23,8 +23,21 @@ import org.openapitools.client.model.User;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.http.HttpRequest;
+import java.nio.channels.Channels;
+import java.nio.channels.Pipe;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -38,7 +51,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-@javax.annotation.processing.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.9.0-SNAPSHOT")
 public class UserApi {
   private final HttpClient memberVarHttpClient;
   private final ObjectMapper memberVarObjectMapper;
@@ -78,22 +91,22 @@ public class UserApi {
   /**
    * Create user
    * This can only be done by the logged in user.
-   * @param body Created user object (required)
+   * @param user Created user object (required)
    * @throws ApiException if fails to make API call
    */
-  public void createUser(User body) throws ApiException {
-    createUserWithHttpInfo(body);
+  public void createUser(User user) throws ApiException {
+    createUserWithHttpInfo(user);
   }
 
   /**
    * Create user
    * This can only be done by the logged in user.
-   * @param body Created user object (required)
+   * @param user Created user object (required)
    * @return ApiResponse&lt;Void&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<Void> createUserWithHttpInfo(User body) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = createUserRequestBuilder(body);
+  public ApiResponse<Void> createUserWithHttpInfo(User user) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = createUserRequestBuilder(user);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -108,7 +121,6 @@ public class UserApi {
         return new ApiResponse<Void>(
           localVarResponse.statusCode(),
           localVarResponse.headers().map(),
-          
           null
         );
       } finally {
@@ -127,10 +139,10 @@ public class UserApi {
     }
   }
 
-  private HttpRequest.Builder createUserRequestBuilder(User body) throws ApiException {
-    // verify the required parameter 'body' is set
-    if (body == null) {
-      throw new ApiException(400, "Missing the required parameter 'body' when calling createUser");
+  private HttpRequest.Builder createUserRequestBuilder(User user) throws ApiException {
+    // verify the required parameter 'user' is set
+    if (user == null) {
+      throw new ApiException(400, "Missing the required parameter 'user' when calling createUser");
     }
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
@@ -143,7 +155,7 @@ public class UserApi {
     localVarRequestBuilder.header("Accept", "application/json");
 
     try {
-      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(body);
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(user);
       localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
     } catch (IOException e) {
       throw new ApiException(e);
@@ -156,25 +168,26 @@ public class UserApi {
     }
     return localVarRequestBuilder;
   }
+
   /**
    * Creates list of users with given input array
    * 
-   * @param body List of user object (required)
+   * @param user List of user object (required)
    * @throws ApiException if fails to make API call
    */
-  public void createUsersWithArrayInput(List<User> body) throws ApiException {
-    createUsersWithArrayInputWithHttpInfo(body);
+  public void createUsersWithArrayInput(List<User> user) throws ApiException {
+    createUsersWithArrayInputWithHttpInfo(user);
   }
 
   /**
    * Creates list of users with given input array
    * 
-   * @param body List of user object (required)
+   * @param user List of user object (required)
    * @return ApiResponse&lt;Void&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<Void> createUsersWithArrayInputWithHttpInfo(List<User> body) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = createUsersWithArrayInputRequestBuilder(body);
+  public ApiResponse<Void> createUsersWithArrayInputWithHttpInfo(List<User> user) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = createUsersWithArrayInputRequestBuilder(user);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -189,7 +202,6 @@ public class UserApi {
         return new ApiResponse<Void>(
           localVarResponse.statusCode(),
           localVarResponse.headers().map(),
-          
           null
         );
       } finally {
@@ -208,10 +220,10 @@ public class UserApi {
     }
   }
 
-  private HttpRequest.Builder createUsersWithArrayInputRequestBuilder(List<User> body) throws ApiException {
-    // verify the required parameter 'body' is set
-    if (body == null) {
-      throw new ApiException(400, "Missing the required parameter 'body' when calling createUsersWithArrayInput");
+  private HttpRequest.Builder createUsersWithArrayInputRequestBuilder(List<User> user) throws ApiException {
+    // verify the required parameter 'user' is set
+    if (user == null) {
+      throw new ApiException(400, "Missing the required parameter 'user' when calling createUsersWithArrayInput");
     }
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
@@ -224,7 +236,7 @@ public class UserApi {
     localVarRequestBuilder.header("Accept", "application/json");
 
     try {
-      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(body);
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(user);
       localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
     } catch (IOException e) {
       throw new ApiException(e);
@@ -237,25 +249,26 @@ public class UserApi {
     }
     return localVarRequestBuilder;
   }
+
   /**
    * Creates list of users with given input array
    * 
-   * @param body List of user object (required)
+   * @param user List of user object (required)
    * @throws ApiException if fails to make API call
    */
-  public void createUsersWithListInput(List<User> body) throws ApiException {
-    createUsersWithListInputWithHttpInfo(body);
+  public void createUsersWithListInput(List<User> user) throws ApiException {
+    createUsersWithListInputWithHttpInfo(user);
   }
 
   /**
    * Creates list of users with given input array
    * 
-   * @param body List of user object (required)
+   * @param user List of user object (required)
    * @return ApiResponse&lt;Void&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<Void> createUsersWithListInputWithHttpInfo(List<User> body) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = createUsersWithListInputRequestBuilder(body);
+  public ApiResponse<Void> createUsersWithListInputWithHttpInfo(List<User> user) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = createUsersWithListInputRequestBuilder(user);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -270,7 +283,6 @@ public class UserApi {
         return new ApiResponse<Void>(
           localVarResponse.statusCode(),
           localVarResponse.headers().map(),
-          
           null
         );
       } finally {
@@ -289,10 +301,10 @@ public class UserApi {
     }
   }
 
-  private HttpRequest.Builder createUsersWithListInputRequestBuilder(List<User> body) throws ApiException {
-    // verify the required parameter 'body' is set
-    if (body == null) {
-      throw new ApiException(400, "Missing the required parameter 'body' when calling createUsersWithListInput");
+  private HttpRequest.Builder createUsersWithListInputRequestBuilder(List<User> user) throws ApiException {
+    // verify the required parameter 'user' is set
+    if (user == null) {
+      throw new ApiException(400, "Missing the required parameter 'user' when calling createUsersWithListInput");
     }
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
@@ -305,7 +317,7 @@ public class UserApi {
     localVarRequestBuilder.header("Accept", "application/json");
 
     try {
-      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(body);
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(user);
       localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
     } catch (IOException e) {
       throw new ApiException(e);
@@ -318,6 +330,7 @@ public class UserApi {
     }
     return localVarRequestBuilder;
   }
+
   /**
    * Delete user
    * This can only be done by the logged in user.
@@ -351,7 +364,6 @@ public class UserApi {
         return new ApiResponse<Void>(
           localVarResponse.statusCode(),
           localVarResponse.headers().map(),
-          
           null
         );
       } finally {
@@ -394,6 +406,7 @@ public class UserApi {
     }
     return localVarRequestBuilder;
   }
+
   /**
    * Get user by user name
    * 
@@ -429,8 +442,7 @@ public class UserApi {
         return new ApiResponse<User>(
           localVarResponse.statusCode(),
           localVarResponse.headers().map(),
-          memberVarObjectMapper.readValue(localVarResponse.body(), new TypeReference<User>() {}) // closes the InputStream
-          
+          localVarResponse.body() == null ? null : memberVarObjectMapper.readValue(localVarResponse.body(), new TypeReference<User>() {}) // closes the InputStream
         );
       } finally {
       }
@@ -467,6 +479,7 @@ public class UserApi {
     }
     return localVarRequestBuilder;
   }
+
   /**
    * Logs user into the system
    * 
@@ -504,8 +517,7 @@ public class UserApi {
         return new ApiResponse<String>(
           localVarResponse.statusCode(),
           localVarResponse.headers().map(),
-          memberVarObjectMapper.readValue(localVarResponse.body(), new TypeReference<String>() {}) // closes the InputStream
-          
+          localVarResponse.body() == null ? null : memberVarObjectMapper.readValue(localVarResponse.body(), new TypeReference<String>() {}) // closes the InputStream
         );
       } finally {
       }
@@ -533,12 +545,19 @@ public class UserApi {
     String localVarPath = "/user/login";
 
     List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "username";
     localVarQueryParams.addAll(ApiClient.parameterToPairs("username", username));
+    localVarQueryParameterBaseName = "password";
     localVarQueryParams.addAll(ApiClient.parameterToPairs("password", password));
 
-    if (!localVarQueryParams.isEmpty()) {
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
       StringJoiner queryJoiner = new StringJoiner("&");
       localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
       localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
     } else {
       localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
@@ -555,6 +574,7 @@ public class UserApi {
     }
     return localVarRequestBuilder;
   }
+
   /**
    * Logs out current logged in user session
    * 
@@ -586,7 +606,6 @@ public class UserApi {
         return new ApiResponse<Void>(
           localVarResponse.statusCode(),
           localVarResponse.headers().map(),
-          
           null
         );
       } finally {
@@ -624,27 +643,28 @@ public class UserApi {
     }
     return localVarRequestBuilder;
   }
+
   /**
    * Updated user
    * This can only be done by the logged in user.
    * @param username name that need to be deleted (required)
-   * @param body Updated user object (required)
+   * @param user Updated user object (required)
    * @throws ApiException if fails to make API call
    */
-  public void updateUser(String username, User body) throws ApiException {
-    updateUserWithHttpInfo(username, body);
+  public void updateUser(String username, User user) throws ApiException {
+    updateUserWithHttpInfo(username, user);
   }
 
   /**
    * Updated user
    * This can only be done by the logged in user.
    * @param username name that need to be deleted (required)
-   * @param body Updated user object (required)
+   * @param user Updated user object (required)
    * @return ApiResponse&lt;Void&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<Void> updateUserWithHttpInfo(String username, User body) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = updateUserRequestBuilder(username, body);
+  public ApiResponse<Void> updateUserWithHttpInfo(String username, User user) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = updateUserRequestBuilder(username, user);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -659,7 +679,6 @@ public class UserApi {
         return new ApiResponse<Void>(
           localVarResponse.statusCode(),
           localVarResponse.headers().map(),
-          
           null
         );
       } finally {
@@ -678,14 +697,14 @@ public class UserApi {
     }
   }
 
-  private HttpRequest.Builder updateUserRequestBuilder(String username, User body) throws ApiException {
+  private HttpRequest.Builder updateUserRequestBuilder(String username, User user) throws ApiException {
     // verify the required parameter 'username' is set
     if (username == null) {
       throw new ApiException(400, "Missing the required parameter 'username' when calling updateUser");
     }
-    // verify the required parameter 'body' is set
-    if (body == null) {
-      throw new ApiException(400, "Missing the required parameter 'body' when calling updateUser");
+    // verify the required parameter 'user' is set
+    if (user == null) {
+      throw new ApiException(400, "Missing the required parameter 'user' when calling updateUser");
     }
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
@@ -699,7 +718,7 @@ public class UserApi {
     localVarRequestBuilder.header("Accept", "application/json");
 
     try {
-      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(body);
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(user);
       localVarRequestBuilder.method("PUT", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
     } catch (IOException e) {
       throw new ApiException(e);
@@ -712,4 +731,5 @@ public class UserApi {
     }
     return localVarRequestBuilder;
   }
+
 }

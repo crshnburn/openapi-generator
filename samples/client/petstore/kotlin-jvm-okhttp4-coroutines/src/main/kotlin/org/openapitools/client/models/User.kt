@@ -32,6 +32,7 @@ import java.io.Serializable
  * @param userStatus User Status
  */
 
+
 data class User (
 
     @SerializedName("id")
@@ -63,6 +64,7 @@ data class User (
     companion object {
         private const val serialVersionUID: Long = 123
     }
+
 
 }
 

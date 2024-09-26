@@ -17,8 +17,8 @@
 
 package org.openapitools.codegen.languages;
 
-import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.meta.features.*;
@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.*;
 
+import static org.openapitools.codegen.utils.CamelizeOption.LOWERCASE_FIRST_LETTER;
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 
 public class ObjcClientCodegen extends DefaultCodegen implements CodegenConfig {
@@ -47,13 +48,13 @@ public class ObjcClientCodegen extends DefaultCodegen implements CodegenConfig {
     public static final String CORE_DATA = "coreData";
 
     protected Set<String> foundationClasses = new HashSet<>();
-    protected String podName = "OpenAPIClient";
-    protected String podVersion = "1.0.0";
-    protected String classPrefix = "OAI";
-    protected String authorName = "OpenAPI";
-    protected String authorEmail = "team@openapitools.org";
-    protected String license = DEFAULT_LICENSE;
-    protected String gitRepoURL = "https://github.com/openapitools/openapi-generator";
+    @Setter protected String podName = "OpenAPIClient";
+    @Setter protected String podVersion = "1.0.0";
+    @Setter protected String classPrefix = "OAI";
+    @Setter protected String authorName = "OpenAPI";
+    @Setter protected String authorEmail = "team@openapitools.org";
+    @Setter protected String license = DEFAULT_LICENSE;
+    @Setter protected String gitRepoURL = "https://github.com/openapitools/openapi-generator";
     protected String[] specialWords = {"new", "copy"};
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
@@ -369,8 +370,7 @@ public class ObjcClientCodegen extends DefaultCodegen implements CodegenConfig {
     @Override
     public String getTypeDeclaration(Schema p) {
         if (ModelUtils.isArraySchema(p)) {
-            ArraySchema ap = (ArraySchema) p;
-            Schema inner = ap.getItems();
+            Schema inner = ModelUtils.getSchemaItems(p);
             String innerTypeDeclaration = getTypeDeclaration(inner);
             if (innerTypeDeclaration.endsWith("*")) {
                 innerTypeDeclaration = innerTypeDeclaration.substring(0, innerTypeDeclaration.length() - 1);
@@ -391,7 +391,7 @@ public class ObjcClientCodegen extends DefaultCodegen implements CodegenConfig {
                 return getSchemaType(p) + "<" + innerTypeDeclaration + ">*";
             }
         } else if (ModelUtils.isMapSchema(p)) {
-            Schema inner = getAdditionalProperties(p);
+            Schema inner = ModelUtils.getAdditionalProperties(p);
 
             String innerTypeDeclaration = getTypeDeclaration(inner);
 
@@ -573,7 +573,7 @@ public class ObjcClientCodegen extends DefaultCodegen implements CodegenConfig {
 
         // camelize (lower first character) the variable name
         // e.g. `pet_id` to `petId`
-        name = camelize(name, true);
+        name = camelize(name, LOWERCASE_FIRST_LETTER);
 
         // for reserved word or word starting with number, prepend `_`
         if (isReservedWord(name) || name.matches("^\\d.*")) {
@@ -618,39 +618,12 @@ public class ObjcClientCodegen extends DefaultCodegen implements CodegenConfig {
 
         // method name cannot use reserved keyword, e.g. return
         if (isReservedWord(operationId)) {
-            LOGGER.warn("{} (reserved word) cannot be used as method name. Renamed to {}", operationId, camelize(sanitizeName("call_" + operationId), true));
-            operationId = "call_" + operationId;
+            final String newName = "call_" + operationId;
+            LOGGER.warn("{} (reserved word) cannot be used as method name. Renamed to {}", operationId, newName);
+            operationId = newName;
         }
 
-        return camelize(sanitizeName(operationId), true);
-    }
-
-    public void setClassPrefix(String classPrefix) {
-        this.classPrefix = classPrefix;
-    }
-
-    public void setPodName(String podName) {
-        this.podName = podName;
-    }
-
-    public void setPodVersion(String podVersion) {
-        this.podVersion = podVersion;
-    }
-
-    public void setAuthorEmail(String authorEmail) {
-        this.authorEmail = authorEmail;
-    }
-
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
-    }
-
-    public void setGitRepoURL(String gitRepoURL) {
-        this.gitRepoURL = gitRepoURL;
-    }
-
-    public void setLicense(String license) {
-        this.license = license;
+        return camelize(sanitizeName(operationId), LOWERCASE_FIRST_LETTER);
     }
 
     @Override
@@ -677,6 +650,7 @@ public class ObjcClientCodegen extends DefaultCodegen implements CodegenConfig {
 
     /**
      * Return the default value of the schema
+     *
      * @param p OpenAPI schema object
      * @return string presentation of the default value of the schema
      */
@@ -696,7 +670,7 @@ public class ObjcClientCodegen extends DefaultCodegen implements CodegenConfig {
             }
         } else if (ModelUtils.isStringSchema(p)) {
             if (p.getDefault() != null) {
-                return "@\"" + (String) p.getDefault() + "\"";
+                return "@\"" + String.valueOf(p.getDefault()) + "\"";
             }
         } else if (ModelUtils.isBooleanSchema(p)) {
             if (p.getDefault() != null) {
@@ -795,5 +769,7 @@ public class ObjcClientCodegen extends DefaultCodegen implements CodegenConfig {
     }
 
     @Override
-    public GeneratorLanguage generatorLanguage() { return GeneratorLanguage.OBJECTIVE_C; }
+    public GeneratorLanguage generatorLanguage() {
+        return GeneratorLanguage.OBJECTIVE_C;
+    }
 }

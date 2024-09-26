@@ -25,8 +25,7 @@ Order <- R6::R6Class(
     `shipDate` = NULL,
     `status` = NULL,
     `complete` = NULL,
-    #' Initialize a new Order class.
-    #'
+
     #' @description
     #' Initialize a new Order class.
     #'
@@ -37,23 +36,28 @@ Order <- R6::R6Class(
     #' @param status Order Status
     #' @param complete complete. Default to FALSE.
     #' @param ... Other optional arguments.
-    #' @export
     initialize = function(`id` = NULL, `petId` = NULL, `quantity` = NULL, `shipDate` = NULL, `status` = NULL, `complete` = FALSE, ...) {
       if (!is.null(`id`)) {
-        stopifnot(is.numeric(`id`), length(`id`) == 1)
+        if (!(is.numeric(`id`) && length(`id`) == 1)) {
+          stop(paste("Error! Invalid data for `id`. Must be an integer:", `id`))
+        }
         self$`id` <- `id`
       }
       if (!is.null(`petId`)) {
-        stopifnot(is.numeric(`petId`), length(`petId`) == 1)
+        if (!(is.numeric(`petId`) && length(`petId`) == 1)) {
+          stop(paste("Error! Invalid data for `petId`. Must be an integer:", `petId`))
+        }
         self$`petId` <- `petId`
       }
       if (!is.null(`quantity`)) {
-        stopifnot(is.numeric(`quantity`), length(`quantity`) == 1)
+        if (!(is.numeric(`quantity`) && length(`quantity`) == 1)) {
+          stop(paste("Error! Invalid data for `quantity`. Must be an integer:", `quantity`))
+        }
         self$`quantity` <- `quantity`
       }
       if (!is.null(`shipDate`)) {
         if (!is.character(`shipDate`)) {
-          stop(paste("Error! Invalid DateTime. Must be a string:", `shipDate`))
+          stop(paste("Error! Invalid data for `shipDate`. Must be a string:", `shipDate`))
         }
         self$`shipDate` <- `shipDate`
       }
@@ -61,21 +65,23 @@ Order <- R6::R6Class(
         if (!(`status` %in% c("placed", "approved", "delivered"))) {
           stop(paste("Error! \"", `status`, "\" cannot be assigned to `status`. Must be \"placed\", \"approved\", \"delivered\".", sep = ""))
         }
-        stopifnot(is.character(`status`), length(`status`) == 1)
+        if (!(is.character(`status`) && length(`status`) == 1)) {
+          stop(paste("Error! Invalid data for `status`. Must be a string:", `status`))
+        }
         self$`status` <- `status`
       }
       if (!is.null(`complete`)) {
-        stopifnot(is.logical(`complete`), length(`complete`) == 1)
+        if (!(is.logical(`complete`) && length(`complete`) == 1)) {
+          stop(paste("Error! Invalid data for `complete`. Must be a boolean:", `complete`))
+        }
         self$`complete` <- `complete`
       }
     },
-    #' To JSON string
-    #'
+
     #' @description
     #' To JSON String
     #'
     #' @return Order in JSON format
-    #' @export
     toJSON = function() {
       OrderObject <- list()
       if (!is.null(self$`id`)) {
@@ -104,14 +110,12 @@ Order <- R6::R6Class(
       }
       OrderObject
     },
-    #' Deserialize JSON string into an instance of Order
-    #'
+
     #' @description
     #' Deserialize JSON string into an instance of Order
     #'
     #' @param input_json the JSON input
     #' @return the instance of Order
-    #' @export
     fromJSON = function(input_json) {
       this_object <- jsonlite::fromJSON(input_json)
       if (!is.null(this_object$`id`)) {
@@ -137,13 +141,11 @@ Order <- R6::R6Class(
       }
       self
     },
-    #' To JSON string
-    #'
+
     #' @description
     #' To JSON String
     #'
     #' @return Order in JSON format
-    #' @export
     toJSONString = function() {
       jsoncontent <- c(
         if (!is.null(self$`id`)) {
@@ -198,14 +200,12 @@ Order <- R6::R6Class(
       jsoncontent <- paste(jsoncontent, collapse = ",")
       json_string <- as.character(jsonlite::minify(paste("{", jsoncontent, "}", sep = "")))
     },
-    #' Deserialize JSON string into an instance of Order
-    #'
+
     #' @description
     #' Deserialize JSON string into an instance of Order
     #'
     #' @param input_json the JSON input
     #' @return the instance of Order
-    #' @export
     fromJSONString = function(input_json) {
       this_object <- jsonlite::fromJSON(input_json)
       self$`id` <- this_object$`id`
@@ -219,53 +219,42 @@ Order <- R6::R6Class(
       self$`complete` <- this_object$`complete`
       self
     },
-    #' Validate JSON input with respect to Order
-    #'
+
     #' @description
     #' Validate JSON input with respect to Order and throw an exception if invalid
     #'
     #' @param input the JSON input
-    #' @export
     validateJSON = function(input) {
       input_json <- jsonlite::fromJSON(input)
     },
-    #' To string (JSON format)
-    #'
+
     #' @description
     #' To string (JSON format)
     #'
     #' @return String representation of Order
-    #' @export
     toString = function() {
       self$toJSONString()
     },
-    #' Return true if the values in all fields are valid.
-    #'
+
     #' @description
     #' Return true if the values in all fields are valid.
     #'
     #' @return true if the values in all fields are valid.
-    #' @export
     isValid = function() {
       TRUE
     },
-    #' Return a list of invalid fields (if any).
-    #'
+
     #' @description
     #' Return a list of invalid fields (if any).
     #'
     #' @return A list of invalid fields (if any).
-    #' @export
     getInvalidFields = function() {
       invalid_fields <- list()
       invalid_fields
     },
-    #' Print the object
-    #'
+
     #' @description
     #' Print the object
-    #'
-    #' @export
     print = function() {
       print(jsonlite::prettify(self$toJSONString()))
       invisible(self)
@@ -277,7 +266,7 @@ Order <- R6::R6Class(
 ## Uncomment below to unlock the class to allow modifications of the method or field
 # Order$unlock()
 #
-## Below is an example to define the print fnuction
+## Below is an example to define the print function
 # Order$set("public", "print", function(...) {
 #   print(jsonlite::prettify(self$toJSONString()))
 #   invisible(self)

@@ -27,6 +27,7 @@ import java.io.Serializable
  * @param message 
  */
 
+
 data class ModelApiResponse (
 
     @SerializedName("code")
@@ -42,6 +43,7 @@ data class ModelApiResponse (
     companion object {
         private const val serialVersionUID: Long = 123
     }
+
 
 }
 

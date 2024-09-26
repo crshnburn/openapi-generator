@@ -31,6 +31,7 @@ import org.openapitools.client.infrastructure.ITransformForStorage
  * @param complete 
  */
 
+
 data class Order (
 
     @SerializedName("id")
@@ -74,5 +75,6 @@ complete = this.complete,
         @SerializedName(value = "approved") approved("approved"),
         @SerializedName(value = "delivered") delivered("delivered");
     }
+
 }
 

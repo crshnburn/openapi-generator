@@ -35,6 +35,7 @@ import kotlinx.parcelize.Parcelize
  */
 @Parcelize
 @Serializable
+
 data class Tag (
 
     @SerialName(value = "id")
@@ -43,5 +44,8 @@ data class Tag (
     @SerialName(value = "name")
     val name: kotlin.String? = null
 
-) : Parcelable
+) : Parcelable {
+
+
+}
 

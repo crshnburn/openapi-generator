@@ -33,6 +33,7 @@ import org.openapitools.client.infrastructure.ITransformForStorage
  * @param status pet status in the store
  */
 
+
 data class Pet (
 
     @SerializedName("name")
@@ -76,5 +77,6 @@ status = this.status,
         @SerializedName(value = "pending") pending("pending"),
         @SerializedName(value = "sold") sold("sold");
     }
+
 }
 

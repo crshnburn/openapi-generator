@@ -23,8 +23,7 @@ AllofTagApiResponse <- R6::R6Class(
     `code` = NULL,
     `type` = NULL,
     `message` = NULL,
-    #' Initialize a new AllofTagApiResponse class.
-    #'
+
     #' @description
     #' Initialize a new AllofTagApiResponse class.
     #'
@@ -34,36 +33,43 @@ AllofTagApiResponse <- R6::R6Class(
     #' @param type type
     #' @param message message
     #' @param ... Other optional arguments.
-    #' @export
     initialize = function(`id` = NULL, `name` = NULL, `code` = NULL, `type` = NULL, `message` = NULL, ...) {
       if (!is.null(`id`)) {
-        stopifnot(is.numeric(`id`), length(`id`) == 1)
+        if (!(is.numeric(`id`) && length(`id`) == 1)) {
+          stop(paste("Error! Invalid data for `id`. Must be an integer:", `id`))
+        }
         self$`id` <- `id`
       }
       if (!is.null(`name`)) {
-        stopifnot(is.character(`name`), length(`name`) == 1)
+        if (!(is.character(`name`) && length(`name`) == 1)) {
+          stop(paste("Error! Invalid data for `name`. Must be a string:", `name`))
+        }
         self$`name` <- `name`
       }
       if (!is.null(`code`)) {
-        stopifnot(is.numeric(`code`), length(`code`) == 1)
+        if (!(is.numeric(`code`) && length(`code`) == 1)) {
+          stop(paste("Error! Invalid data for `code`. Must be an integer:", `code`))
+        }
         self$`code` <- `code`
       }
       if (!is.null(`type`)) {
-        stopifnot(is.character(`type`), length(`type`) == 1)
+        if (!(is.character(`type`) && length(`type`) == 1)) {
+          stop(paste("Error! Invalid data for `type`. Must be a string:", `type`))
+        }
         self$`type` <- `type`
       }
       if (!is.null(`message`)) {
-        stopifnot(is.character(`message`), length(`message`) == 1)
+        if (!(is.character(`message`) && length(`message`) == 1)) {
+          stop(paste("Error! Invalid data for `message`. Must be a string:", `message`))
+        }
         self$`message` <- `message`
       }
     },
-    #' To JSON string
-    #'
+
     #' @description
     #' To JSON String
     #'
     #' @return AllofTagApiResponse in JSON format
-    #' @export
     toJSON = function() {
       AllofTagApiResponseObject <- list()
       if (!is.null(self$`id`)) {
@@ -88,14 +94,12 @@ AllofTagApiResponse <- R6::R6Class(
       }
       AllofTagApiResponseObject
     },
-    #' Deserialize JSON string into an instance of AllofTagApiResponse
-    #'
+
     #' @description
     #' Deserialize JSON string into an instance of AllofTagApiResponse
     #'
     #' @param input_json the JSON input
     #' @return the instance of AllofTagApiResponse
-    #' @export
     fromJSON = function(input_json) {
       this_object <- jsonlite::fromJSON(input_json)
       if (!is.null(this_object$`id`)) {
@@ -115,13 +119,11 @@ AllofTagApiResponse <- R6::R6Class(
       }
       self
     },
-    #' To JSON string
-    #'
+
     #' @description
     #' To JSON String
     #'
     #' @return AllofTagApiResponse in JSON format
-    #' @export
     toJSONString = function() {
       jsoncontent <- c(
         if (!is.null(self$`id`)) {
@@ -168,14 +170,12 @@ AllofTagApiResponse <- R6::R6Class(
       jsoncontent <- paste(jsoncontent, collapse = ",")
       json_string <- as.character(jsonlite::minify(paste("{", jsoncontent, "}", sep = "")))
     },
-    #' Deserialize JSON string into an instance of AllofTagApiResponse
-    #'
+
     #' @description
     #' Deserialize JSON string into an instance of AllofTagApiResponse
     #'
     #' @param input_json the JSON input
     #' @return the instance of AllofTagApiResponse
-    #' @export
     fromJSONString = function(input_json) {
       this_object <- jsonlite::fromJSON(input_json)
       self$`id` <- this_object$`id`
@@ -185,53 +185,42 @@ AllofTagApiResponse <- R6::R6Class(
       self$`message` <- this_object$`message`
       self
     },
-    #' Validate JSON input with respect to AllofTagApiResponse
-    #'
+
     #' @description
     #' Validate JSON input with respect to AllofTagApiResponse and throw an exception if invalid
     #'
     #' @param input the JSON input
-    #' @export
     validateJSON = function(input) {
       input_json <- jsonlite::fromJSON(input)
     },
-    #' To string (JSON format)
-    #'
+
     #' @description
     #' To string (JSON format)
     #'
     #' @return String representation of AllofTagApiResponse
-    #' @export
     toString = function() {
       self$toJSONString()
     },
-    #' Return true if the values in all fields are valid.
-    #'
+
     #' @description
     #' Return true if the values in all fields are valid.
     #'
     #' @return true if the values in all fields are valid.
-    #' @export
     isValid = function() {
       TRUE
     },
-    #' Return a list of invalid fields (if any).
-    #'
+
     #' @description
     #' Return a list of invalid fields (if any).
     #'
     #' @return A list of invalid fields (if any).
-    #' @export
     getInvalidFields = function() {
       invalid_fields <- list()
       invalid_fields
     },
-    #' Print the object
-    #'
+
     #' @description
     #' Print the object
-    #'
-    #' @export
     print = function() {
       print(jsonlite::prettify(self$toJSONString()))
       invisible(self)
@@ -243,7 +232,7 @@ AllofTagApiResponse <- R6::R6Class(
 ## Uncomment below to unlock the class to allow modifications of the method or field
 # AllofTagApiResponse$unlock()
 #
-## Below is an example to define the print fnuction
+## Below is an example to define the print function
 # AllofTagApiResponse$set("public", "print", function(...) {
 #   print(jsonlite::prettify(self$toJSONString()))
 #   invisible(self)

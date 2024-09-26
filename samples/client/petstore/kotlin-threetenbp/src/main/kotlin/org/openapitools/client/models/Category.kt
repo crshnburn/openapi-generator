@@ -17,6 +17,7 @@ package org.openapitools.client.models
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * A category for a pet
@@ -24,6 +25,7 @@ import com.squareup.moshi.Json
  * @param id 
  * @param name 
  */
+
 
 data class Category (
 
@@ -33,5 +35,8 @@ data class Category (
     @Json(name = "name")
     val name: kotlin.String? = null
 
-)
+) {
+
+
+}
 

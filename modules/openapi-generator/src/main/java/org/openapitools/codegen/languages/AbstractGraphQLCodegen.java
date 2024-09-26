@@ -16,8 +16,8 @@
 
 package org.openapitools.codegen.languages;
 
-import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.model.ModelMap;
@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.*;
 
+import static org.openapitools.codegen.utils.CamelizeOption.LOWERCASE_FIRST_LETTER;
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 import static org.openapitools.codegen.utils.StringUtils.underscore;
 
@@ -38,8 +39,8 @@ public abstract class AbstractGraphQLCodegen extends DefaultCodegen implements C
     private final Logger LOGGER = LoggerFactory.getLogger(AbstractGraphQLCodegen.class);
 
     protected String specFolder = "spec";
-    protected String packageName = "openapi2graphql";
-    protected String packageVersion = "1.0.0";
+    @Setter protected String packageName = "openapi2graphql";
+    @Setter protected String packageVersion = "1.0.0";
     protected String apiDocPath = "docs/";
     protected String modelDocPath = "docs/";
 
@@ -115,14 +116,6 @@ public abstract class AbstractGraphQLCodegen extends DefaultCodegen implements C
         additionalProperties.put("modelDocPath", modelDocPath);
     }
 
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
-
-    public void setPackageVersion(String packageVersion) {
-        this.packageVersion = packageVersion;
-    }
-
     @Override
     public String escapeReservedWord(String name) {
         // Can't start with an underscore, as our fields need to start with an
@@ -160,7 +153,7 @@ public abstract class AbstractGraphQLCodegen extends DefaultCodegen implements C
         if (name.matches("^[A-Z_]*$"))
             return name;
 
-        name = camelize(name, true);
+        name = camelize(name, LOWERCASE_FIRST_LETTER);
 
         // for reserved word or word starting with number, append _
         if (isReservedWord(name))
@@ -272,12 +265,14 @@ public abstract class AbstractGraphQLCodegen extends DefaultCodegen implements C
     @Override
     public String getTypeDeclaration(Schema p) {
         if (ModelUtils.isArraySchema(p)) {
-            ArraySchema ap = (ArraySchema) p;
-            Schema inner = ap.getItems();
+            Schema inner = ModelUtils.getSchemaItems(p);
             return "[" + getTypeDeclaration(inner) + "]";
         } else if (ModelUtils.isMapSchema(p)) {
-            Schema inner = (Schema) p.getAdditionalProperties();
-            return getTypeDeclaration(inner);
+            Object ap = p.getAdditionalProperties();
+            // additionalProperties is either a Schema or a Boolean
+            if (ap instanceof Schema) {
+                return getTypeDeclaration((Schema) ap);
+            }
         }
 
         // Not using the supertype invocation, because we want to UpperCamelize
@@ -326,7 +321,7 @@ public abstract class AbstractGraphQLCodegen extends DefaultCodegen implements C
             sanitizedOperationId = "call_" + sanitizedOperationId;
         }
 
-        return camelize(sanitizedOperationId, false);
+        return camelize(sanitizedOperationId);
     }
 
     @Override

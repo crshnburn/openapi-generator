@@ -18,7 +18,6 @@ import java.util.HashMap;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import java.util.Objects;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -26,9 +25,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.openapitools.client.model.Fruit;
 import org.openapitools.client.model.NullableShape;
@@ -39,6 +37,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.util.NoSuchElementException;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import jakarta.validation.constraints.*;
+import jakarta.validation.Valid;
 import org.openapitools.client.JSON;
 
 
@@ -51,19 +51,19 @@ import org.openapitools.client.JSON;
   Drawing.JSON_PROPERTY_NULLABLE_SHAPE,
   Drawing.JSON_PROPERTY_SHAPES
 })
-@jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen")
+@jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.9.0-SNAPSHOT")
 public class Drawing {
   public static final String JSON_PROPERTY_MAIN_SHAPE = "mainShape";
   private Shape mainShape;
 
   public static final String JSON_PROPERTY_SHAPE_OR_NULL = "shapeOrNull";
-  private ShapeOrNull shapeOrNull;
+  private JsonNullable<ShapeOrNull> shapeOrNull = JsonNullable.<ShapeOrNull>undefined();
 
   public static final String JSON_PROPERTY_NULLABLE_SHAPE = "nullableShape";
   private JsonNullable<NullableShape> nullableShape = JsonNullable.<NullableShape>undefined();
 
   public static final String JSON_PROPERTY_SHAPES = "shapes";
-  private List<Shape> shapes = null;
+  private List<Shape> shapes = new ArrayList<>();
 
   public Drawing() { 
   }
@@ -73,12 +73,13 @@ public class Drawing {
     return this;
   }
 
-   /**
+  /**
    * Get mainShape
    * @return mainShape
-  **/
+   */
   @jakarta.annotation.Nullable
-  @ApiModelProperty(value = "")
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_MAIN_SHAPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -95,28 +96,37 @@ public class Drawing {
 
 
   public Drawing shapeOrNull(ShapeOrNull shapeOrNull) {
-    this.shapeOrNull = shapeOrNull;
+    this.shapeOrNull = JsonNullable.<ShapeOrNull>of(shapeOrNull);
     return this;
   }
 
-   /**
+  /**
    * Get shapeOrNull
    * @return shapeOrNull
-  **/
+   */
   @jakarta.annotation.Nullable
-  @ApiModelProperty(value = "")
-  @JsonProperty(JSON_PROPERTY_SHAPE_OR_NULL)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @Valid
+
+  @JsonIgnore
 
   public ShapeOrNull getShapeOrNull() {
-    return shapeOrNull;
+        return shapeOrNull.orElse(null);
   }
-
 
   @JsonProperty(JSON_PROPERTY_SHAPE_OR_NULL)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setShapeOrNull(ShapeOrNull shapeOrNull) {
+
+  public JsonNullable<ShapeOrNull> getShapeOrNull_JsonNullable() {
+    return shapeOrNull;
+  }
+  
+  @JsonProperty(JSON_PROPERTY_SHAPE_OR_NULL)
+  public void setShapeOrNull_JsonNullable(JsonNullable<ShapeOrNull> shapeOrNull) {
     this.shapeOrNull = shapeOrNull;
+  }
+
+  public void setShapeOrNull(ShapeOrNull shapeOrNull) {
+    this.shapeOrNull = JsonNullable.<ShapeOrNull>of(shapeOrNull);
   }
 
 
@@ -125,12 +135,13 @@ public class Drawing {
     return this;
   }
 
-   /**
+  /**
    * Get nullableShape
    * @return nullableShape
-  **/
+   */
   @jakarta.annotation.Nullable
-  @ApiModelProperty(value = "")
+  @Valid
+
   @JsonIgnore
 
   public NullableShape getNullableShape() {
@@ -167,12 +178,13 @@ public class Drawing {
     return this;
   }
 
-   /**
+  /**
    * Get shapes
    * @return shapes
-  **/
+   */
   @jakarta.annotation.Nullable
-  @ApiModelProperty(value = "")
+  @Valid
+
   @JsonProperty(JSON_PROPERTY_SHAPES)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
@@ -201,7 +213,7 @@ public class Drawing {
   @JsonAnySetter
   public Drawing putAdditionalProperty(String key, Fruit value) {
     if (this.additionalProperties == null) {
-        this.additionalProperties = new HashMap<String, Fruit>();
+        this.additionalProperties = new HashMap<>();
     }
     this.additionalProperties.put(key, value);
     return this;
@@ -238,7 +250,7 @@ public class Drawing {
     }
     Drawing drawing = (Drawing) o;
     return Objects.equals(this.mainShape, drawing.mainShape) &&
-        Objects.equals(this.shapeOrNull, drawing.shapeOrNull) &&
+        equalsNullable(this.shapeOrNull, drawing.shapeOrNull) &&
         equalsNullable(this.nullableShape, drawing.nullableShape) &&
         Objects.equals(this.shapes, drawing.shapes)&&
         Objects.equals(this.additionalProperties, drawing.additionalProperties);
@@ -250,7 +262,7 @@ public class Drawing {
 
   @Override
   public int hashCode() {
-    return Objects.hash(mainShape, shapeOrNull, hashCodeNullable(nullableShape), shapes, additionalProperties);
+    return Objects.hash(mainShape, hashCodeNullable(shapeOrNull), hashCodeNullable(nullableShape), shapes, additionalProperties);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {

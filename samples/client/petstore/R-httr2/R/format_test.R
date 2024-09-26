@@ -43,8 +43,7 @@ FormatTest <- R6::R6Class(
     `password` = NULL,
     `pattern_with_digits` = NULL,
     `pattern_with_digits_and_delimiter` = NULL,
-    #' Initialize a new FormatTest class.
-    #'
+
     #' @description
     #' Initialize a new FormatTest class.
     #'
@@ -64,7 +63,6 @@ FormatTest <- R6::R6Class(
     #' @param pattern_with_digits A string that is a 10 digit number. Can have leading zeros.
     #' @param pattern_with_digits_and_delimiter A string starting with 'image_' (case insensitive) and one to three digits following i.e. Image_01.
     #' @param ... Other optional arguments.
-    #' @export
     initialize = function(`number`, `byte`, `date`, `password`, `integer` = NULL, `int32` = NULL, `int64` = NULL, `float` = NULL, `double` = NULL, `string` = NULL, `binary` = NULL, `dateTime` = "2015-10-28T14:38:02Z", `uuid` = NULL, `pattern_with_digits` = NULL, `pattern_with_digits_and_delimiter` = NULL, ...) {
       if (!missing(`number`)) {
         self$`number` <- `number`
@@ -73,37 +71,51 @@ FormatTest <- R6::R6Class(
         self$`byte` <- `byte`
       }
       if (!missing(`date`)) {
-        if (!is.character(`date`)) {
-          stop(paste("Error! Invalid Date. Must be a string:", `date`))
+        if (!(is.character(`date`) && length(`date`) == 1)) {
+          stop(paste("Error! Invalid data for `date`. Must be a string:", `date`))
         }
         self$`date` <- `date`
       }
       if (!missing(`password`)) {
-        stopifnot(is.character(`password`), length(`password`) == 1)
+        if (!(is.character(`password`) && length(`password`) == 1)) {
+          stop(paste("Error! Invalid data for `password`. Must be a string:", `password`))
+        }
         self$`password` <- `password`
       }
       if (!is.null(`integer`)) {
-        stopifnot(is.numeric(`integer`), length(`integer`) == 1)
+        if (!(is.numeric(`integer`) && length(`integer`) == 1)) {
+          stop(paste("Error! Invalid data for `integer`. Must be an integer:", `integer`))
+        }
         self$`integer` <- `integer`
       }
       if (!is.null(`int32`)) {
-        stopifnot(is.numeric(`int32`), length(`int32`) == 1)
+        if (!(is.numeric(`int32`) && length(`int32`) == 1)) {
+          stop(paste("Error! Invalid data for `int32`. Must be an integer:", `int32`))
+        }
         self$`int32` <- `int32`
       }
       if (!is.null(`int64`)) {
-        stopifnot(is.numeric(`int64`), length(`int64`) == 1)
+        if (!(is.numeric(`int64`) && length(`int64`) == 1)) {
+          stop(paste("Error! Invalid data for `int64`. Must be an integer:", `int64`))
+        }
         self$`int64` <- `int64`
       }
       if (!is.null(`float`)) {
-        stopifnot(is.numeric(`float`), length(`float`) == 1)
+        if (!(is.numeric(`float`) && length(`float`) == 1)) {
+          stop(paste("Error! Invalid data for `float`. Must be a number:", `float`))
+        }
         self$`float` <- `float`
       }
       if (!is.null(`double`)) {
-        stopifnot(is.numeric(`double`), length(`double`) == 1)
+        if (!(is.numeric(`double`) && length(`double`) == 1)) {
+          stop(paste("Error! Invalid data for `double`. Must be a number:", `double`))
+        }
         self$`double` <- `double`
       }
       if (!is.null(`string`)) {
-        stopifnot(is.character(`string`), length(`string`) == 1)
+        if (!(is.character(`string`) && length(`string`) == 1)) {
+          stop(paste("Error! Invalid data for `string`. Must be a string:", `string`))
+        }
         self$`string` <- `string`
       }
       if (!is.null(`binary`)) {
@@ -111,30 +123,34 @@ FormatTest <- R6::R6Class(
       }
       if (!is.null(`dateTime`)) {
         if (!is.character(`dateTime`)) {
-          stop(paste("Error! Invalid DateTime. Must be a string:", `dateTime`))
+          stop(paste("Error! Invalid data for `dateTime`. Must be a string:", `dateTime`))
         }
         self$`dateTime` <- `dateTime`
       }
       if (!is.null(`uuid`)) {
-        stopifnot(is.character(`uuid`), length(`uuid`) == 1)
+        if (!(is.character(`uuid`) && length(`uuid`) == 1)) {
+          stop(paste("Error! Invalid data for `uuid`. Must be a string:", `uuid`))
+        }
         self$`uuid` <- `uuid`
       }
       if (!is.null(`pattern_with_digits`)) {
-        stopifnot(is.character(`pattern_with_digits`), length(`pattern_with_digits`) == 1)
+        if (!(is.character(`pattern_with_digits`) && length(`pattern_with_digits`) == 1)) {
+          stop(paste("Error! Invalid data for `pattern_with_digits`. Must be a string:", `pattern_with_digits`))
+        }
         self$`pattern_with_digits` <- `pattern_with_digits`
       }
       if (!is.null(`pattern_with_digits_and_delimiter`)) {
-        stopifnot(is.character(`pattern_with_digits_and_delimiter`), length(`pattern_with_digits_and_delimiter`) == 1)
+        if (!(is.character(`pattern_with_digits_and_delimiter`) && length(`pattern_with_digits_and_delimiter`) == 1)) {
+          stop(paste("Error! Invalid data for `pattern_with_digits_and_delimiter`. Must be a string:", `pattern_with_digits_and_delimiter`))
+        }
         self$`pattern_with_digits_and_delimiter` <- `pattern_with_digits_and_delimiter`
       }
     },
-    #' To JSON string
-    #'
+
     #' @description
     #' To JSON String
     #'
     #' @return FormatTest in JSON format
-    #' @export
     toJSON = function() {
       FormatTestObject <- list()
       if (!is.null(self$`integer`)) {
@@ -199,14 +215,12 @@ FormatTest <- R6::R6Class(
       }
       FormatTestObject
     },
-    #' Deserialize JSON string into an instance of FormatTest
-    #'
+
     #' @description
     #' Deserialize JSON string into an instance of FormatTest
     #'
     #' @param input_json the JSON input
     #' @return the instance of FormatTest
-    #' @export
     fromJSON = function(input_json) {
       this_object <- jsonlite::fromJSON(input_json)
       if (!is.null(this_object$`integer`)) {
@@ -256,13 +270,11 @@ FormatTest <- R6::R6Class(
       }
       self
     },
-    #' To JSON string
-    #'
+
     #' @description
     #' To JSON String
     #'
     #' @return FormatTest in JSON format
-    #' @export
     toJSONString = function() {
       jsoncontent <- c(
         if (!is.null(self$`integer`)) {
@@ -389,14 +401,12 @@ FormatTest <- R6::R6Class(
       jsoncontent <- paste(jsoncontent, collapse = ",")
       json_string <- as.character(jsonlite::minify(paste("{", jsoncontent, "}", sep = "")))
     },
-    #' Deserialize JSON string into an instance of FormatTest
-    #'
+
     #' @description
     #' Deserialize JSON string into an instance of FormatTest
     #'
     #' @param input_json the JSON input
     #' @return the instance of FormatTest
-    #' @export
     fromJSONString = function(input_json) {
       this_object <- jsonlite::fromJSON(input_json)
       self$`integer` <- this_object$`integer`
@@ -416,13 +426,11 @@ FormatTest <- R6::R6Class(
       self$`pattern_with_digits_and_delimiter` <- this_object$`pattern_with_digits_and_delimiter`
       self
     },
-    #' Validate JSON input with respect to FormatTest
-    #'
+
     #' @description
     #' Validate JSON input with respect to FormatTest and throw an exception if invalid
     #'
     #' @param input the JSON input
-    #' @export
     validateJSON = function(input) {
       input_json <- jsonlite::fromJSON(input)
       # check the required field `number`
@@ -437,34 +445,34 @@ FormatTest <- R6::R6Class(
       }
       # check the required field `date`
       if (!is.null(input_json$`date`)) {
-        stopifnot(is.character(input_json$`date`), length(input_json$`date`) == 1)
+        if (!(is.character(input_json$`date`) && length(input_json$`date`) == 1)) {
+          stop(paste("Error! Invalid data for `date`. Must be a string:", input_json$`date`))
+        }
       } else {
         stop(paste("The JSON input `", input, "` is invalid for FormatTest: the required field `date` is missing."))
       }
       # check the required field `password`
       if (!is.null(input_json$`password`)) {
-        stopifnot(is.character(input_json$`password`), length(input_json$`password`) == 1)
+        if (!(is.character(input_json$`password`) && length(input_json$`password`) == 1)) {
+          stop(paste("Error! Invalid data for `password`. Must be a string:", input_json$`password`))
+        }
       } else {
         stop(paste("The JSON input `", input, "` is invalid for FormatTest: the required field `password` is missing."))
       }
     },
-    #' To string (JSON format)
-    #'
+
     #' @description
     #' To string (JSON format)
     #'
     #' @return String representation of FormatTest
-    #' @export
     toString = function() {
       self$toJSONString()
     },
-    #' Return true if the values in all fields are valid.
-    #'
+
     #' @description
     #' Return true if the values in all fields are valid.
     #'
     #' @return true if the values in all fields are valid.
-    #' @export
     isValid = function() {
       if (self$`integer` > 100) {
         return(FALSE)
@@ -542,13 +550,11 @@ FormatTest <- R6::R6Class(
 
       TRUE
     },
-    #' Return a list of invalid fields (if any).
-    #'
+
     #' @description
     #' Return a list of invalid fields (if any).
     #'
     #' @return A list of invalid fields (if any).
-    #' @export
     getInvalidFields = function() {
       invalid_fields <- list()
       if (self$`integer` > 100) {
@@ -627,12 +633,9 @@ FormatTest <- R6::R6Class(
 
       invalid_fields
     },
-    #' Print the object
-    #'
+
     #' @description
     #' Print the object
-    #'
-    #' @export
     print = function() {
       print(jsonlite::prettify(self$toJSONString()))
       invisible(self)
@@ -644,7 +647,7 @@ FormatTest <- R6::R6Class(
 ## Uncomment below to unlock the class to allow modifications of the method or field
 # FormatTest$unlock()
 #
-## Below is an example to define the print fnuction
+## Below is an example to define the print function
 # FormatTest$set("public", "print", function(...) {
 #   print(jsonlite::prettify(self$toJSONString()))
 #   invisible(self)
